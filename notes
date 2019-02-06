@@ -57,3 +57,11 @@ Elf32_Word    sh_info;                /* Additional section information */
 Elf32_Word    sh_addralign;           /* Section alignment */
 Elf32_Word    sh_entsize;             /* Entry size if section holds table */
 } Elf32_Shdr;
+
+https://ensiwiki.ensimag.fr/images/b/b2/ENSIMAG-2A-Securiy-Cryptology-2016-Graux-Mouillard-Saoud.pdf
+
+https://www.win.tue.nl/~aeb/linux/hh/virus/unix-viruses.txt
+
+https://packetstormsecurity.com/files/12327/elf-pv.txt.html
+
+https://grugq.github.io/docs/phrack-58-05.txt
