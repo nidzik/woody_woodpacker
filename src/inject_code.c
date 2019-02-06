@@ -18,7 +18,7 @@ int write_to_file(char *file_name, char *content, off_t content_size)
 	int fd;
 	size_t writed;
 
-	fd = open(file_name, O_WRONLY | O_CREAT);
+	fd = open(file_name, O_WRONLY | O_CREAT, S_IRWXU);
 	if (fd == -1)
 	{
 		dprintf(2, "Cannot create the new binary \"%s\":(\n", file_name);
@@ -83,12 +83,16 @@ int build_payload(char *file, char *new_file, char *code, off_t code_len, Elf64_
 
 	offset = ((Elf64_Ehdr *)new_file)->e_entry;
 	jmp_adr = ((Elf64_Ehdr *)file)->e_entry - (offset + code_len);
+	jmp_adr -= 5; // wtf
+	printf("offset: %lx\n", offset);
 	printf("offset of the jump: %d\n", jmp_adr);
+	printf("size of the code: %lx\n", code_len);
 	memcpy(jmp_code + 1, &jmp_adr, sizeof(int));
-	printf("offset: %lx, text length: %lx, text offset: %lx\n", *(&offset), *(&(section->sh_size)), *(&(section->sh_offset)));
-	//memcpy(code + NEW_EP_OFFSET, &offset + (WOODY_DEBUG ? 4 : 0), sizeof(int));
-	//memcpy(code + TEXT_LENGTH_OFFSET, &(section->sh_size), sizeof(int));
-	//memcpy(code + TEXT_OFFSET_OFFSET, &(section->sh_offset), sizeof(int));
+	offset += (WOODY_DEBUG ? 4 : 0);
+	memcpy(code + NEW_EP_OFFSET, &offset, sizeof(int));
+	memcpy(code + TEXT_LENGTH_OFFSET, &(section->sh_size), sizeof(int));
+	memcpy(code + TEXT_OFFSET_OFFSET, &(section->sh_offset), sizeof(int));
+	offset -= (WOODY_DEBUG ? 4 : 0);
 	memcpy(new_file + offset, code, code_len);
 	offset += code_len;
 	// write(2, code, code_len);

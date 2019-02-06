@@ -7,3 +7,4 @@ woody
 payload/print_woody
 peda-session*
 .gdb_history
+*vgcore*

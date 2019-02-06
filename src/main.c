@@ -101,10 +101,10 @@ int main(int ac, char **av)
 		dprintf(2, text ? "No text section\n" : "Invalid file\n");
 		return (1);
 	}
-	print_section(new_file, text);
+	//print_section(new_file, text);
 	encrypt_section(new_file, text);
 	printf("encrypted section: (key: \"%s\")\n", KEY);
-	print_section(new_file, text);
+	//print_section(new_file, text);
 
 	printf("exiting...\n");
 

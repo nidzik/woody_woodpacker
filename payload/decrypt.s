@@ -41,7 +41,7 @@ beginning:
 	inc rcx ; inc index
 	xor BYTE [r14], 0x42 ; xor on [r14]
 	lea r14, [r14 + 1] ; inc our ptr
-	cmp rcx, 0x1d2 ; cmp if we ave done enought HARD CODED
+	cmp rcx, r12 ; cmp if we ave done enought HARD CODED
 	jle  beginning ; no, keep doing
 end: ; reset our variables
 	xor rax, rax
