@@ -4,7 +4,8 @@ CC := gcc
 # CFLAGS := -Werror
 CPATH = src/
 CFILES = \
-	main.c
+	main.c \
+	find_cave.c
 
 OPATH = obj/
 OFILES = $(CFILES:.c=.o)
@@ -38,7 +39,7 @@ fclean: clean
 re: fclean all
 
 it : re
-	gcc src/test.c -o test 
+	gcc src/test.c -o test_bin
 	./$(NAME) test
 	./woody
 

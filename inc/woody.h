@@ -11,4 +11,6 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 
+off_t find_cave(char *file, off_t file_size, off_t asked_length, off_t *cave_size);
+
 #endif

@@ -73,6 +73,18 @@ int main(int ac, char **av)
 	// read(fd, &elf, sizeof(elf));
 	elf = (void *)file;
 
+	// Step 1 : generate our code with the good address
+	// char *code = get_our_code(file, file_size)
+
+	// Step 2 : find where to place our code
+	// off_t entry = find_place(char *bin, off_t code_size);
+	off_t cave_size;
+	off_t entry;
+	entry = find_cave(file, file_size, 0, &cave_size);
+	printf("bigest cave entry: %jd, cave size: %jd\n", entry, cave_size);
+	// Step 3 : copy our code (if we found a place, else we )
+	// memcpy(bin + entry, our_code, code_length)
+
 	// getImageBase(fd);
 
 	/* replace Program entry */
