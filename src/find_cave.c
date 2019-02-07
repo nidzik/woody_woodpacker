@@ -6,7 +6,7 @@
 
 */
 
-off_t get_cave_size(char *file, off_t offset, off_t file_size)
+static off_t get_cave_size(char *file, off_t offset, off_t file_size)
 {
 	off_t index;
 

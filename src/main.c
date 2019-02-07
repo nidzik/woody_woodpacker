@@ -90,8 +90,8 @@ int main(int ac, char **av)
 	/* replace Program entry */
 	// elf->e_entry = 0x41414141;
 
-	printf("Program entry: %lx\nPhdr entry : %ld\nShdr entry : %ld \nSize of ELF header : %d \n", elf->e_entry, elf->e_phoff, elf->e_shoff, elf->e_ehsize);
-
+	// printf("Program entry: %lx\nPhdr entry : %ld\nShdr entry : %ld \nSize of ELF header : %d \n", elf->e_entry, elf->e_phoff, elf->e_shoff, elf->e_ehsize);
+	inject_code(file, file_size, entry, cave_size);
 	// lseek(fd, 6654, SEEK_SET);
 	// write(fd, &shdr, sizeof(shdr));
 	// printf("section name : %s \n", shdr.sh_name);

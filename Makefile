@@ -5,7 +5,8 @@ CC := gcc
 CPATH = src/
 CFILES = \
 	main.c \
-	find_cave.c
+	find_cave.c \
+	inject_code.c
 
 OPATH = obj/
 OFILES = $(CFILES:.c=.o)
