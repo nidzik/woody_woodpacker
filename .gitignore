@@ -1,0 +1,4 @@
+*.o
+obj/
+woody_woodpacker
+*.swp
