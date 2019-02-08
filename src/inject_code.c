@@ -25,6 +25,7 @@ static int write_to_file(char *file_name, char *content, off_t content_size)
 		dprintf(2, "Cannot create the new binary \"%s\":(\n", file_name);
 		return (0);
 	}
+	
 	writed = write(fd, content, content_size);
 	if (writed != content_size)
 	{
@@ -33,8 +34,8 @@ static int write_to_file(char *file_name, char *content, off_t content_size)
 		unlink(file_name);
 		return (0);
 	}
-	close(fd);
-	return (1);
+//	close(fd);
+	return (fd);
 }
 
 static Elf64_Addr get_virt_addr(char *file, off_t file_size, int *error)
@@ -74,8 +75,9 @@ int inject_code(char *file, off_t file_size, off_t cave_entry, off_t cave_size)
 	off_t new_entry;
 	off_t old_entry;
 	int	error;
-	char *new_file;;
-
+	char *new_file;
+	int fd;
+	
 	new_entry = get_virt_addr(file, file_size, &error);
 	if (error)
 	{
@@ -87,6 +89,22 @@ int inject_code(char *file, off_t file_size, off_t cave_entry, off_t cave_size)
 	new_entry += cave_entry;
 	printf("Old entry: 0x%jx\nNew entry: 0x%jx\n", old_entry, new_entry);
 	new_file = get_new_file(file, file_size);
-	write_to_file(FILE_NAME, file, file_size);
+
+	/* alter entry point and 1st cave   (with lseek)*/
+
+	// change the entry point 
+	((Elf64_Ehdr *)file)->e_entry = cave_entry + 1;
+
+	// copy entire binary 
+	fd = write_to_file(FILE_NAME, file, file_size);
+
+	// fill the 1st cave code with 2  sigtrap 
+	((Elf64_Ehdr *)file)->e_entry = cave_entry + 1;
+	lseek(fd, cave_entry + 1, SEEK_SET);
+	char *strr = "\xcc\xcc";
+	write(fd, strr, 2);
+
+	
+	close (fd);
 	return (1);
 }

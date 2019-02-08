@@ -98,19 +98,6 @@ int main(int ac, char **av)
 	// Step 3 : copy our code (if we found a place, else we )
 	// memcpy(bin + entry, our_code, code_length)
 
-	/* replace Program entry  (+1 to 'align the shit')*/
-/*
-	((Elf64_Ehdr *)elf)->e_entry = entry + 1;
-
-	int fdd = open(av[1], O_RDWR );
-	lseek(fdd,0, SEEK_SET);
-	write(fdd, elf, sizeof(Elf64_Ehdr));
-	lseek(fdd, entry+1, SEEK_SET);
-	char *strr = "\xcc\x80";
-	printf("strr == %s ", strr);
-	write(fdd,strr,3); 
-	close(fdd);
-*/		
 	find_sect(elf,".text");
 	
 	inject_code(file, file_size, entry, cave_size);
