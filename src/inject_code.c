@@ -1,6 +1,43 @@
 #include "woody.h"
 
-static Elf64_Addr get_virt_addr(char *file, off_t file_size)
+static char *get_new_file(char *old_file, off_t file_size)
+{
+	char *result;
+
+	if (!(result = malloc(file_size)))
+	{
+		dprintf(2, "malloc failed\n");
+		return (NULL);
+	}
+	memcpy(result, old_file, (size_t)file_size);
+	return (result);
+}
+
+
+static int write_to_file(char *file_name, char *content, off_t content_size)
+{
+	int fd;
+	size_t writed;
+
+	fd = open(file_name, O_WRONLY | O_CREAT);
+	if (fd == -1)
+	{
+		dprintf(2, "Cannot create the new binary \"%s\":(\n", file_name);
+		return (0);
+	}
+	writed = write(fd, content, content_size);
+	if (writed != content_size)
+	{
+		dprintf(2, "incomplete write to the new binary\n");
+		close(fd);
+		unlink(file_name);
+		return (0);
+	}
+	close(fd);
+	return (1);
+}
+
+static Elf64_Addr get_virt_addr(char *file, off_t file_size, int *error)
 {
 	Elf64_Ehdr *ehdr;
 	Elf64_Phdr *phdr;
@@ -15,14 +52,15 @@ static Elf64_Addr get_virt_addr(char *file, off_t file_size)
 		return 0;
 	}
 	phdr = (void *)(file + ehdr->e_phoff);
-	printf("file pt : %p, phdr pt : %p\n", file, phdr);
-	printf("headers length: %ld\n", headers_length);
+	//	printf("file pt : %p, phdr pt : %p\n", file, phdr);
+	//	printf("headers length: %ld\n", headers_length);
 	index = 0;
+	*error = 1;
 	while (index < headers_length)
 	{
 		if (phdr[index].p_type == 1) // check the p_type for 1 which is PT_LOAD
 		{
-			printf("hey we found it \n");
+			*error = 0;
 			return (phdr[index].p_vaddr);
 		}
 		index += 1;
@@ -35,12 +73,20 @@ int inject_code(char *file, off_t file_size, off_t cave_entry, off_t cave_size)
 {
 	off_t new_entry;
 	off_t old_entry;
+	int	error;
+	char *new_file;;
 
-	if (!(new_entry = get_virt_addr(file, file_size)))
+	new_entry = get_virt_addr(file, file_size, &error);
+	if (error)
+	{
+		dprintf(2, "Nothing founded\n");
 		return (0);
+	}
 	printf("Virtual address offset: 0x%jx\n", new_entry);
 	old_entry = ((Elf64_Ehdr *)file)->e_entry;
 	new_entry += cave_entry;
 	printf("Old entry: 0x%jx\nNew entry: 0x%jx\n", old_entry, new_entry);
+	new_file = get_new_file(file, file_size);
+	write_to_file(FILE_NAME, file, file_size);
 	return (1);
 }

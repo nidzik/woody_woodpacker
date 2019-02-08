@@ -33,19 +33,19 @@ char *get_file(char *name, off_t *file_size)
 
 	if ((fd = open(name, O_RDONLY)) == -1)
 	{
-		dprintf(2, "error open ");
+		dprintf(2, "error during the open\n");
 		return (NULL);
 	}
 	if (fstat(fd, &metadata) == -1)
 	{
-		dprintf(2, "ftsat failed");
+		dprintf(2, "ftsat failed\n");
 		return (NULL);
 	}
 	*file_size = metadata.st_size;
 	if ((file = mmap(0, (size_t)*file_size, PROT_READ,
 					 MAP_PRIVATE, fd, 0)) == MAP_FAILED)
 	{
-		dprintf(2, "mmap failed");
+		dprintf(2, "mmap failed\n");
 		return (NULL);
 	}
 	close(fd);
@@ -97,6 +97,6 @@ int main(int ac, char **av)
 	// printf("section name : %s \n", shdr.sh_name);
 	//	printf();
 
-	printf("\nclosing fd, exiting...\n");
+	printf("exiting...\n");
 	return 0;
 }
