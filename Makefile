@@ -1,6 +1,6 @@
 
 NAME := woody_woodpacker
-CC := gcc
+CC := gcc -fno-stack-protector
 # CFLAGS := -Werror
 CPATH = src/
 CFILES = \
@@ -40,7 +40,7 @@ fclean: clean
 re: fclean all
 
 it : re
-	gcc src/test.c -o test_bin
-	./$(NAME) test
+	gcc test/test.c -o test_bin
+	./$(NAME) test_bin
 	./woody
 
