@@ -28,7 +28,7 @@ off_t find_cave(char *file, off_t file_size, off_t asked_length, off_t *cave_siz
 	index = 0;
 	while (index < file_size)
 	{
-		if (!file[index])
+		if (!file[index] && index % 4 == 0)
 		{
 			tmp_size = get_cave_size(file, index, file_size);
 			if (asked_length && tmp_size > asked_length)

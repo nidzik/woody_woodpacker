@@ -13,7 +13,6 @@ static char *get_new_file(char *old_file, off_t file_size)
 	return (result);
 }
 
-
 static int write_to_file(char *file_name, char *content, off_t content_size)
 {
 	int fd;
@@ -25,7 +24,7 @@ static int write_to_file(char *file_name, char *content, off_t content_size)
 		dprintf(2, "Cannot create the new binary \"%s\":(\n", file_name);
 		return (0);
 	}
-	
+
 	writed = write(fd, content, content_size);
 	if (writed != content_size)
 	{
@@ -34,7 +33,7 @@ static int write_to_file(char *file_name, char *content, off_t content_size)
 		unlink(file_name);
 		return (0);
 	}
-//	close(fd);
+	close(fd);
 	return (fd);
 }
 
@@ -74,10 +73,10 @@ int inject_code(char *file, off_t file_size, off_t cave_entry, off_t cave_size)
 {
 	off_t new_entry;
 	off_t old_entry;
-	int	error;
+	int error;
 	char *new_file;
 	int fd;
-	
+
 	new_entry = get_virt_addr(file, file_size, &error);
 	if (error)
 	{
@@ -92,19 +91,13 @@ int inject_code(char *file, off_t file_size, off_t cave_entry, off_t cave_size)
 
 	/* alter entry point and 1st cave   (with lseek)*/
 
-	// change the entry point 
-	((Elf64_Ehdr *)file)->e_entry = cave_entry + 1;
+	// change the entry point
+	((Elf64_Ehdr *)new_file)->e_entry = cave_entry;
+	memcpy(new_file + cave_entry, "\xcc\xcc", 2);
 
-	// copy entire binary 
-	fd = write_to_file(FILE_NAME, file, file_size);
+	// copy entire binary
+	fd = write_to_file(FILE_NAME, new_file, file_size);
 
-	// fill the 1st cave code with 2  sigtrap 
-	((Elf64_Ehdr *)file)->e_entry = cave_entry + 1;
-	lseek(fd, cave_entry + 1, SEEK_SET);
-	char *strr = "\xcc\xcc";
-	write(fd, strr, 2);
-
-	
-	close (fd);
+	// fill the 1st cave code with 2  sigtrap
 	return (1);
 }
