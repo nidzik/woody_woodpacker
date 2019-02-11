@@ -56,6 +56,11 @@ static Elf64_Addr get_virt_addr(char *file, off_t file_size, int *error)
 	//	printf("headers length: %ld\n", headers_length);
 	index = 0;
 	*error = 1;
+	if (!headers_length)
+	{
+		dprintf(2, "There is no program header\n");
+		return (0);
+	}
 	while (index < headers_length)
 	{
 		if (phdr[index].p_type == 1) // check the p_type for 1 which is PT_LOAD
@@ -65,8 +70,25 @@ static Elf64_Addr get_virt_addr(char *file, off_t file_size, int *error)
 		}
 		index += 1;
 	}
-	printf("found nothig :(");
+	dprintf(2, "unamble to find the PT_LOAD program header\n");
 	return (0);
+}
+
+int build_payload(char *file, char *new_file, char *code, off_t code_len)
+{
+	char *jump;
+	off_t offset;
+	int	jmp_adr;
+	char 	jmp_code[] = "\xe9\xff\xff\xff\xff";  
+
+	offset = ((Elf64_Ehdr *)new_file)->e_entry;
+	jmp_adr = ((Elf64_Ehdr *)file)->e_entry - (offset + code_len);
+	printf("offset of the jump: %d\n", jmp_adr);
+	memcpy(jmp_code + 1, &jmp_adr, sizeof(int)); 
+	memcpy(new_file + offset, code, code_len);
+	offset += code_len;
+	memcpy(new_file + offset, jmp_code, sizeof(jmp_code) - 1);
+	return 1;
 }
 
 int inject_code(char *file, off_t file_size, off_t cave_entry, off_t cave_size)
@@ -79,21 +101,21 @@ int inject_code(char *file, off_t file_size, off_t cave_entry, off_t cave_size)
 
 	new_entry = get_virt_addr(file, file_size, &error);
 	if (error)
-	{
-		dprintf(2, "Nothing founded\n");
 		return (0);
-	}
 	printf("Virtual address offset: 0x%jx\n", new_entry);
 	old_entry = ((Elf64_Ehdr *)file)->e_entry;
 	new_entry += cave_entry;
 	printf("Old entry: 0x%jx\nNew entry: 0x%jx\n", old_entry, new_entry);
 	new_file = get_new_file(file, file_size);
 
-	/* alter entry point and 1st cave   (with lseek)*/
-
 	// change the entry point
 	((Elf64_Ehdr *)new_file)->e_entry = cave_entry;
-	memcpy(new_file + cave_entry, "\xcc\xcc", 2);
+	// copy the code to the cave and jump to the normal entry point
+	// Example with shellcode
+	// build_payload(file, new_file, shellcode, sizeof(shellcode));
+
+	// without shellcode (just a jump to the begining)
+	build_payload(file, new_file, "", 0);
 
 	// copy entire binary
 	fd = write_to_file(FILE_NAME, new_file, file_size);
