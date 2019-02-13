@@ -1,6 +1,6 @@
 
 NAME := woody_woodpacker
-CC := gcc -fno-stack-protector
+CC := gcc
 # CFLAGS := -Werror
 CPATH = src/
 CFILES = \
@@ -43,4 +43,3 @@ it : re
 	gcc test/test.c -o test_bin
 	./$(NAME) test_bin
 	./woody
-

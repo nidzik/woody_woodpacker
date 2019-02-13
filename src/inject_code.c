@@ -98,6 +98,7 @@ int inject_code(char *file, off_t file_size, off_t cave_entry, off_t cave_size)
 	int error;
 	char *new_file;
 	int fd;
+	char code [] = PRINT_WOODY_PAYLOAD;
 
 	new_entry = get_virt_addr(file, file_size, &error);
 	if (error)
@@ -115,7 +116,7 @@ int inject_code(char *file, off_t file_size, off_t cave_entry, off_t cave_size)
 	// build_payload(file, new_file, shellcode, sizeof(shellcode));
 
 	// without shellcode (just a jump to the begining)
-	build_payload(file, new_file, "", 0);
+	build_payload(file, new_file, code, sizeof(code) - 1);
 
 	// copy entire binary
 	fd = write_to_file(FILE_NAME, new_file, file_size);
