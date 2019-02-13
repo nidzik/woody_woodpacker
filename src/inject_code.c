@@ -34,7 +34,7 @@ static int write_to_file(char *file_name, char *content, off_t content_size)
 		return (0);
 	}
 	close(fd);
-	return (fd);
+	return (1);
 }
 
 static Elf64_Addr get_virt_addr(char *file, off_t file_size, int *error)
@@ -91,18 +91,17 @@ int build_payload(char *file, char *new_file, char *code, off_t code_len)
 	return 1;
 }
 
-int inject_code(char *file, off_t file_size, off_t cave_entry, off_t cave_size)
+char *inject_code(char *file, off_t file_size, off_t cave_entry, off_t cave_size)
 {
 	off_t new_entry;
 	off_t old_entry;
 	int error;
 	char *new_file;
-	int fd;
 	char code [] = PRINT_WOODY_PAYLOAD;
 
 	new_entry = get_virt_addr(file, file_size, &error);
 	if (error)
-		return (0);
+		return (NULL);
 	printf("Virtual address offset: 0x%jx\n", new_entry);
 	old_entry = ((Elf64_Ehdr *)file)->e_entry;
 	new_entry += cave_entry;
@@ -119,8 +118,8 @@ int inject_code(char *file, off_t file_size, off_t cave_entry, off_t cave_size)
 	build_payload(file, new_file, code, sizeof(code) - 1);
 
 	// copy entire binary
-	fd = write_to_file(FILE_NAME, new_file, file_size);
+	write_to_file(FILE_NAME, new_file, file_size);
 
 	// fill the 1st cave code with 2  sigtrap
-	return (1);
+	return (new_file);
 }

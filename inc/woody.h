@@ -13,6 +13,7 @@
 # include <string.h>
 
 # define  FILE_NAME "woody"
+# define KEY "super_key"
 // payload/print_woody.s
 // nasm -f bin payload/print_woody.s
 # define PRINT_WOODY_PAYLOAD	"\xeb\x14\xb8\x01\x00\x00\x00\xbf\x01\x00\x00\x00\x5e\xba\x0e"\
@@ -20,7 +21,10 @@
 				"\x2e\x57\x4f\x4f\x44\x59\x2e\x2e\x2e\x2e\x0a\x48\x31\xc0\x48"\
 				"\x31\xff\x48\x31\xd2\x48\x31\xf6"
 
-off_t	find_cave(char *file, off_t file_size, off_t asked_length, off_t *cave_size);
-int	inject_code(char *file, off_t file_size, off_t cave_entry, off_t cave_size);
+Elf64_Shdr	*find_sect(char *elf, const char *sect);
+void		encrypt_section(char *file, Elf64_Shdr *header);
+void		print_section(char *file, Elf64_Shdr *header);
+off_t		find_cave(char *file, off_t file_size, off_t asked_length, off_t *cave_size);
+char		*inject_code(char *file, off_t file_size, off_t cave_entry, off_t cave_size);
 
 #endif

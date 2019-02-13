@@ -1,40 +1,5 @@
 #include "woody.h"
 
-void find_sect(void *elf, const char *sect)
-{
-	void *elfsave;
-	Elf64_Shdr *shdr;
-	Elf64_Shdr stable;
-	char *sname;
-	int shnum;
-
-	//	printf("Program entry: %lx\nPhdr entry : %ld\nShdr entry : %ld \nSize of ELF header : %d \n", elf->e_entry, elf->e_phoff, elf->e_shoff, elf->e_ehsize);
-	elfsave = elf;
-	shdr = (Elf64_Shdr *)(elf + ((Elf64_Ehdr *)elf)->e_shoff);
-	stable = shdr[((Elf64_Ehdr *)elf)->e_shstrndx];
-	sname = (char *)(elf + stable.sh_offset);
-
-	for (shnum = 0; shnum < ((Elf64_Ehdr *)elf)->e_shnum; shnum++)
-	{
-		stable = shdr[shnum];
-		//		printf ("name sect : %s \t\t|offset : %d \n", sname + stable.sh_name, stable.sh_offset);
-		if (!strcmp(sname + stable.sh_name, sect))
-		{
-			printf("\nname sect : %s \t| offset : %ld \n", sname + stable.sh_name, stable.sh_offset);
-			for (int j = 0; j < stable.sh_size; j += 4)
-			{
-				printf(" %02x%02x%02x%02x ", *((unsigned char *)elfsave + stable.sh_offset + j),
-					   *((unsigned char *)elfsave + stable.sh_offset + j + 1),
-					   *((unsigned char *)elfsave + stable.sh_offset + j + 2),
-					   *((unsigned char *)elfsave + stable.sh_offset + j + 3));
-				if (!(j % 16) && j != 0)
-					printf("\n");
-				fflush(stdout);
-			}
-		}
-	}
-}
-
 char *get_file(char *name, off_t *file_size)
 {
 	struct stat metadata;
@@ -65,10 +30,11 @@ char *get_file(char *name, off_t *file_size)
 int main(int ac, char **av)
 {
 	char *file;
+	char *new_file;
 	off_t file_size;
 	void *ptr = NULL;
-	Elf64_Ehdr *elf;
 	Elf32_Shdr *shdr;
+	Elf64_Shdr *text;
 
 	if (ac < 2)
 	{
@@ -80,8 +46,6 @@ int main(int ac, char **av)
 	if (!file)
 		return (1);
 	printf("Sucess retreiving %s, file size: %zu bytes.\n", av[1], file_size);
-
-	elf = (void *)file;
 
 	// Step 1 : generate our code with the good address
 	// char *code = get_our_code(file, file_size)
@@ -97,9 +61,17 @@ int main(int ac, char **av)
 	// Step 3 : copy our code (if we found a place, else we )
 	// memcpy(bin + entry, our_code, code_length)
 
-	find_sect(elf, ".text");
-
-	inject_code(file, file_size, entry, cave_size);
+	new_file = inject_code(file, file_size, entry, cave_size);
+	text = find_sect(file, ".text");
+	if (!text)
+	{
+		dprintf(2, "No text section\n");
+		return (1);
+	}
+	print_section(new_file, text);
+	encrypt_section(new_file, text);
+	printf("encrypted section: (key: \"%s\")\n", KEY);
+	print_section(new_file, text);
 
 	printf("exiting...\n");
 
