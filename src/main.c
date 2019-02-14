@@ -1,5 +1,44 @@
 #include "woody.h"
 
+
+int verif_header(char *file, off_t size)
+{
+	if (strncmp(file, ELFMAG, sizeof(ELFMAG) - 1) ||  size < EI_CLASS)
+	{
+		dprintf(2, "the file is not an elf\n");
+		return (0);
+	}
+	if ((file[EI_CLASS] == ELFCLASS32 && size < sizeof(Elf32_Ehdr))
+		|| (file[EI_CLASS] == ELFCLASS64 && size < sizeof(Elf64_Ehdr)))
+	{
+		dprintf(2, "The file is too small\n");
+		return (0);
+	}
+	if (file[EI_CLASS] == ELFCLASS32)
+	{
+		if (((Elf32_Ehdr*)file)->e_type != ET_EXEC)
+		{
+			dprintf(2, "the file is not an executable\n");
+			return (0);
+		}
+		return (32);
+	}
+	else if (file[EI_CLASS] == ELFCLASS64)
+	{
+		if (((Elf64_Ehdr*)file)->e_type != ET_EXEC)
+		{
+			dprintf(2, "the file is not an executable\n");
+			return (0);
+		}
+		return (64);
+	}
+	else
+	{
+		dprintf(2, "not a valid format\n");
+		return (0);
+	}
+}
+
 char *get_file(char *name, off_t *file_size)
 {
 	struct stat metadata;
@@ -35,6 +74,7 @@ int main(int ac, char **av)
 	void *ptr = NULL;
 	Elf32_Shdr *shdr;
 	Elf64_Shdr *text;
+	int arch;
 
 	if (ac < 2)
 	{
@@ -43,7 +83,7 @@ int main(int ac, char **av)
 	}
 	file_size = 0;
 	file = get_file(av[1], &file_size);
-	if (!file)
+	if (!file || !(arch = verif_header(file, file_size)))
 		return (1);
 	printf("Sucess retreiving %s, file size: %zu bytes.\n", av[1], file_size);
 
