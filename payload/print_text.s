@@ -20,32 +20,3 @@ _start:							;tell linker entry point
 	cmp 	rcx, 0x1d2
 	jle 	beginning
 	end:
-
-	
-	
-
-
-	mov	rdi, rax   		; error code 0	
-	mov	rax, 60  		; use the _exit syscall
-   	syscall         		; make syscall
-
-	xor		BYTE [r14], 0x42
-	mov 	rbx, r14
-	lea		rbx, [rbx + 1]
-	lea		r14, [r14 + 1]
-	xor		BYTE [r14], 0x42
-
-
-	xor		rax, rax
-
-	
-
-	
-
-	mov		r10, 0x42
-	mov		rcx, 0x00
-	
-	
-
-
-
