@@ -46,8 +46,9 @@ void	print_section(char *file, Elf64_Shdr *header)
 }
 
 
-Elf64_Shdr *find_sect(char *file, const char *sect)
+Elf64_Shdr *find_sect(char *file, const char *sect, off_t file_size)
 {
+
 	Elf64_Shdr *shdr;
 	Elf64_Shdr stable;
 	char *sname;

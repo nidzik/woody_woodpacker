@@ -13,7 +13,7 @@ static char *get_new_file(char *old_file, off_t file_size)
 	return (result);
 }
 
-static int write_to_file(char *file_name, char *content, off_t content_size)
+int write_to_file(char *file_name, char *content, off_t content_size)
 {
 	int fd;
 	size_t writed;
@@ -91,22 +91,24 @@ int build_payload(char *file, char *new_file, char *code, off_t code_len)
 	return 1;
 }
 
-char *inject_code(char *file, off_t file_size, off_t cave_entry, off_t cave_size)
+char *inject_code(char *file, off_t *file_size)
 {
 	off_t new_entry;
-	off_t old_entry;
 	int error;
 	char *new_file;
 	char code [] = PRINT_WOODY_PAYLOAD;
+	off_t cave_size;
+	off_t cave_entry;
 
-	new_entry = get_virt_addr(file, file_size, &error);
+	cave_entry = find_cave(file, *file_size, 0, &cave_size);
+	printf("bigest cave entry: %jd, cave size: %jd\n", cave_entry, cave_size);
+	new_entry = get_virt_addr(file, *file_size, &error);
 	if (error)
 		return (NULL);
 	printf("Virtual address offset: 0x%jx\n", new_entry);
-	old_entry = ((Elf64_Ehdr *)file)->e_entry;
 	new_entry += cave_entry;
-	printf("Old entry: 0x%jx\nNew entry: 0x%jx\n", old_entry, new_entry);
-	new_file = get_new_file(file, file_size);
+	printf("Old entry: 0x%jx\nNew entry: 0x%jx\n", ((Elf64_Ehdr *)file)->e_entry, new_entry);
+	new_file = get_new_file(file, *file_size);
 
 	// change the entry point
 	((Elf64_Ehdr *)new_file)->e_entry = cave_entry;
@@ -117,8 +119,6 @@ char *inject_code(char *file, off_t file_size, off_t cave_entry, off_t cave_size
 	// without shellcode (just a jump to the begining)
 	build_payload(file, new_file, code, sizeof(code) - 1);
 
-	// copy entire binary
-	write_to_file(FILE_NAME, new_file, file_size);
 
 	// fill the 1st cave code with 2  sigtrap
 	return (new_file);

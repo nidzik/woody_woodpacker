@@ -16,7 +16,8 @@ int verif_header(char *file, off_t size)
 	}
 	if (file[EI_CLASS] == ELFCLASS32)
 	{
-		if (((Elf32_Ehdr*)file)->e_type != ET_EXEC)
+		if (((Elf32_Ehdr*)file)->e_type != ET_EXEC
+		&& ((Elf32_Ehdr*)file)->e_type != ET_DYN)
 		{
 			dprintf(2, "the file is not an executable\n");
 			return (0);
@@ -25,7 +26,8 @@ int verif_header(char *file, off_t size)
 	}
 	else if (file[EI_CLASS] == ELFCLASS64)
 	{
-		if (((Elf64_Ehdr*)file)->e_type != ET_EXEC)
+		if (((Elf64_Ehdr*)file)->e_type != ET_EXEC
+		&& ((Elf64_Ehdr*)file)->e_type != ET_DYN)
 		{
 			dprintf(2, "the file is not an executable\n");
 			return (0);
@@ -92,20 +94,16 @@ int main(int ac, char **av)
 
 	// Step 2 : find where to place our code
 	// off_t entry = find_place(char *bin, off_t code_size);
-	off_t cave_size;
-	off_t entry;
-	entry = find_cave(file, file_size, 0, &cave_size);
 
-	printf("bigest cave entry: %jd, cave size: %jd\n", entry, cave_size);
 
 	// Step 3 : copy our code (if we found a place, else we )
 	// memcpy(bin + entry, our_code, code_length)
 
-	new_file = inject_code(file, file_size, entry, cave_size);
-	text = find_sect(file, ".text");
-	if (!text)
+	new_file = inject_code(file, &file_size);
+	text = find_sect(file, ".text", file_size);
+	if (!text || text->sh_offset + text->sh_size > file_size)
 	{
-		dprintf(2, "No text section\n");
+		dprintf(2, text ? "No text section\n" : "Invalid file\n");
 		return (1);
 	}
 	print_section(new_file, text);
@@ -115,5 +113,5 @@ int main(int ac, char **av)
 
 	printf("exiting...\n");
 
-	return 0;
+	return write_to_file(FILE_NAME, new_file, file_size);
 }
