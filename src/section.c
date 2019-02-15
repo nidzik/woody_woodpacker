@@ -14,7 +14,8 @@ void	encrypt_section(char *file, Elf64_Shdr *header)
 	index = 0;	
 	while (index < size)
 	{
-		file[offset + index] = file[offset + index] ^ key[index % key_len];
+		file[offset + index] = file[offset + index] ^ 0x42;
+		//file[offset + index] = file[offset + index] ^ key[index % key_len];
 		//file[offset + index] = file[offset + index] ^ key[(index + offset) % key_len];
 		index += 1;
 	}

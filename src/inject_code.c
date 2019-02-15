@@ -96,7 +96,7 @@ char *inject_code(char *file, off_t *file_size)
 	off_t new_entry;
 	int error;
 	char *new_file;
-	char code [] = PRINT_WOODY_PAYLOAD;
+	char code [] = PAYLOAD;
 	off_t cave_size;
 	off_t cave_entry;
 
