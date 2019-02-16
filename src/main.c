@@ -1,23 +1,20 @@
 #include "woody.h"
 
-
 int verif_header(char *file, off_t size)
 {
-	if (strncmp(file, ELFMAG, sizeof(ELFMAG) - 1) ||  size < EI_CLASS)
+	if (strncmp(file, ELFMAG, sizeof(ELFMAG) - 1) || size < EI_CLASS)
 	{
 		dprintf(2, "the file is not an elf\n");
 		return (0);
 	}
-	if ((file[EI_CLASS] == ELFCLASS32 && size < sizeof(Elf32_Ehdr))
-		|| (file[EI_CLASS] == ELFCLASS64 && size < sizeof(Elf64_Ehdr)))
+	if ((file[EI_CLASS] == ELFCLASS32 && size < sizeof(Elf32_Ehdr)) || (file[EI_CLASS] == ELFCLASS64 && size < sizeof(Elf64_Ehdr)))
 	{
 		dprintf(2, "The file is too small\n");
 		return (0);
 	}
 	if (file[EI_CLASS] == ELFCLASS32)
 	{
-		if (((Elf32_Ehdr*)file)->e_type != ET_EXEC
-		&& ((Elf32_Ehdr*)file)->e_type != ET_DYN)
+		if (((Elf32_Ehdr *)file)->e_type != ET_EXEC && ((Elf32_Ehdr *)file)->e_type != ET_DYN)
 		{
 			dprintf(2, "the file is not an executable\n");
 			return (0);
@@ -26,8 +23,7 @@ int verif_header(char *file, off_t size)
 	}
 	else if (file[EI_CLASS] == ELFCLASS64)
 	{
-		if (((Elf64_Ehdr*)file)->e_type != ET_EXEC
-		&& ((Elf64_Ehdr*)file)->e_type != ET_DYN)
+		if (((Elf64_Ehdr *)file)->e_type != ET_EXEC && ((Elf64_Ehdr *)file)->e_type != ET_DYN)
 		{
 			dprintf(2, "the file is not an executable\n");
 			return (0);
@@ -95,12 +91,11 @@ int main(int ac, char **av)
 	// Step 2 : find where to place our code
 	// off_t entry = find_place(char *bin, off_t code_size);
 
-
 	// Step 3 : copy our code (if we found a place, else we )
 	// memcpy(bin + entry, our_code, code_length)
 
-	new_file = inject_code(file, &file_size);
 	text = find_sect(file, ".text", file_size);
+	new_file = inject_code(file, &file_size, text);
 	if (!text || text->sh_offset + text->sh_size > file_size)
 	{
 		dprintf(2, text ? "No text section\n" : "Invalid file\n");

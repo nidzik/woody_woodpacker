@@ -74,29 +74,34 @@ static Elf64_Addr get_virt_addr(char *file, off_t file_size, int *error)
 	return (0);
 }
 
-int build_payload(char *file, char *new_file, char *code, off_t code_len)
+int build_payload(char *file, char *new_file, char *code, off_t code_len, Elf64_Shdr *section)
 {
 	char *jump;
 	off_t offset;
-	int	jmp_adr;
-	char 	jmp_code[] = "\xe9\xff\xff\xff\xff";  
+	int jmp_adr;
+	char jmp_code[] = "\xe9\xff\xff\xff\xff";
 
 	offset = ((Elf64_Ehdr *)new_file)->e_entry;
 	jmp_adr = ((Elf64_Ehdr *)file)->e_entry - (offset + code_len);
 	printf("offset of the jump: %d\n", jmp_adr);
-	memcpy(jmp_code + 1, &jmp_adr, sizeof(int)); 
+	memcpy(jmp_code + 1, &jmp_adr, sizeof(int));
+	printf("offset: %lx, text length: %lx, text offset: %lx\n", *(&offset), *(&(section->sh_size)), *(&(section->sh_offset)));
+	//memcpy(code + NEW_EP_OFFSET, &offset + (WOODY_DEBUG ? 4 : 0), sizeof(int));
+	//memcpy(code + TEXT_LENGTH_OFFSET, &(section->sh_size), sizeof(int));
+	//memcpy(code + TEXT_OFFSET_OFFSET, &(section->sh_offset), sizeof(int));
 	memcpy(new_file + offset, code, code_len);
 	offset += code_len;
+	// write(2, code, code_len);
 	memcpy(new_file + offset, jmp_code, sizeof(jmp_code) - 1);
 	return 1;
 }
 
-char *inject_code(char *file, off_t *file_size)
+char *inject_code(char *file, off_t *file_size, Elf64_Shdr *section)
 {
 	off_t new_entry;
 	int error;
 	char *new_file;
-	char code [] = PAYLOAD;
+	char code[] = PAYLOAD;
 	off_t cave_size;
 	off_t cave_entry;
 
@@ -117,8 +122,7 @@ char *inject_code(char *file, off_t *file_size)
 	// build_payload(file, new_file, shellcode, sizeof(shellcode));
 
 	// without shellcode (just a jump to the begining)
-	build_payload(file, new_file, code, sizeof(code) - 1);
-
+	build_payload(file, new_file, code, sizeof(code) - 1, section);
 
 	// fill the 1st cave code with 2  sigtrap
 	return (new_file);

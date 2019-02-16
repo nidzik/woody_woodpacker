@@ -3,9 +3,12 @@ global main
 
 
 main:
-	mov r13, 0x8a0 ; HARD CODED new entry point
-	mov r12, 0x1c2 ; HARD CODED test length
-	mov r11, 0x580 ; HARD CODED test offset
+	;mov r13, 0xdeadbeef ; HARD CODED new entry point
+	;mov r12, 0xdeadbeef ; HARD CODED text length
+	;mov r11, 0xdeadbeef ; HARD CODED text offset
+	mov r13, 0x830 ; HARD CODED new entry point
+	mov r12, 0x1a2 ; HARD CODED text length
+	mov r11, 0x530 ; HARD CODED text offset
 
 	; get virt address
 	lea rdi, [ rel main ]
