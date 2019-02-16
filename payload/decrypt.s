@@ -3,9 +3,9 @@ global main
 
 
 main:
-	mov r13, 0x8a0 ; HARD CODED new entry point
-	mov r12, 0x1c2 ; HARD CODED test length
-	mov r11, 0x580 ; HARD CODED test offset
+	mov r13, 0xdeadbeef ; HARD CODED new entry point
+	mov r12, 0xdeadbeef ; HARD CODED text length
+	mov r11, 0xdeadbeef ; HARD CODED text offset
 
 	; get virt address
 	lea rdi, [ rel main ]
@@ -38,7 +38,7 @@ beginning:
 	inc rcx ; inc index
 	xor BYTE [r14], 0x42 ; xor on [r14]
 	lea r14, [r14 + 1] ; inc our ptr
-	cmp rcx, 0x1d2 ; cmp if we ave done enought HARD CODED
+	cmp rcx, r12 ; cmp if we ave done enought HARD CODED
 	jle  beginning ; no, keep doing
 end: ; reset our variables
 	xor rax, rax
