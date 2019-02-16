@@ -4,11 +4,13 @@ https://en.wikipedia.org/wiki/Executable_compression
 
 ## Roadmap
 
-- [ ] Do the roadmap,
-- [ ] Inject Hello world in an executable,
-- [ ] Modify the stack at runtime,
-- [ ] Do the encryption/decryption functions (in asm)
-- [ ] Inject them
+- [x] Do the roadmap,
+- [x] Inject Hello world in an executable,
+- [x] Modify the stack at runtime,
+- [x] Do the encryption/decryption functions (in asm)
+- [x] Inject them
+- [ ] Working on all the executable
+- [ ] Better encryption (AES)
 - [ ] Bonus...
 
 ## Doc
