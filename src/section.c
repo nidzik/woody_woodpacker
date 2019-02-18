@@ -47,6 +47,37 @@ void	print_section(char *file, Elf64_Shdr *header)
 }
 
 
+int new_section(char **new_file, off_t *file_size)
+{
+	Elf64_Shdr	section_header;
+	off_t		start;
+	char		*tmp_file;
+
+	start = ((Elf64_Ehdr *)*new_file)->e_shoff + ((Elf64_Ehdr *)*new_file)->e_shentsize *
+		((Elf64_Ehdr *)*new_file)->e_shnum;
+	printf("start: 0x%lx\n");
+	section_header.sh_name = 0x1;
+	section_header.sh_type = 0x1;
+	section_header.sh_flags = 0x4;
+	section_header.sh_addr = 0 ; // ?
+	section_header.sh_offset = 0 ; // ?
+	section_header.sh_size = 0 ; // ?
+	section_header.sh_link = 0; // not sure
+	section_header.sh_info = 0;
+	section_header.sh_addralign = 0;
+	section_header.sh_entsize = 0;
+	if (!(tmp_file = realloc(*new_file, *file_size + sizeof(Elf64_Shdr))))
+	{
+		dprintf(2, "realloc error\n");
+		return (0);
+	}
+	*new_file = tmp_file;
+	memcpy(*new_file + start, &section_header, sizeof(section_header));
+	((Elf64_Ehdr *)*new_file)->e_shnum += 1;
+	*file_size += sizeof(Elf64_Shdr);
+	return (1);
+}
+
 Elf64_Shdr *find_sect(char *file, const char *sect, off_t file_size)
 {
 

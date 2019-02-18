@@ -96,6 +96,7 @@ int main(int ac, char **av)
 
 	text = find_sect(file, ".text", file_size);
 	new_file = inject_code(file, &file_size, text);
+	new_section(&new_file, &file_size);
 	if (!text || text->sh_offset + text->sh_size > file_size)
 	{
 		dprintf(2, text ? "No text section\n" : "Invalid file\n");
