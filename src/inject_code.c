@@ -37,7 +37,7 @@ int write_to_file(char *file_name, char *content, off_t content_size)
 	return (1);
 }
 
-static Elf64_Addr get_virt_addr(char *file, off_t file_size, int *error)
+static Elf64_Addr get_virt_addr(char *file, off_t file_size, int *error, off_t *offset_max)
 {
 	Elf64_Ehdr *ehdr;
 	Elf64_Phdr *phdr;
@@ -65,6 +65,7 @@ static Elf64_Addr get_virt_addr(char *file, off_t file_size, int *error)
 	{
 		if (phdr[index].p_type == 1) // check the p_type for 1 which is PT_LOAD
 		{
+			*offset_max = phdr[index].p_memsz;
 			*error = 0;
 			return (phdr[index].p_vaddr);
 		}
@@ -89,9 +90,10 @@ int build_payload(char *file, char *new_file, char *code, off_t code_len, Elf64_
 	printf("size of the code: 0x%lx\n", code_len);
 	memcpy(jmp_code + 1, &jmp_adr, sizeof(int));
 	offset += (WOODY_DEBUG ? 4 : 0);
+	int offset_virt = section->sh_offset + virt_addr ; 
 	memcpy(code + NEW_EP_OFFSET, &offset, sizeof(int));
 	memcpy(code + TEXT_LENGTH_OFFSET, &(section->sh_size), sizeof(int));
-	memcpy(code + TEXT_OFFSET_OFFSET, &(section->sh_offset), sizeof(int));
+	memcpy(code + TEXT_OFFSET_OFFSET, &(offset_virt), sizeof(int));
 	offset -= (WOODY_DEBUG ? 4 : 0);
 	memcpy(new_file + offset - virt_addr, code, code_len);
 	offset += code_len;
@@ -108,10 +110,12 @@ char *inject_code(char *file, off_t *file_size, Elf64_Shdr *section)
 	char code[] = PAYLOAD;
 	off_t cave_size;
 	off_t cave_entry;
+	off_t offset_max;
 
-	cave_entry = find_cave(file, *file_size, 0, &cave_size);
+	virt_addr = get_virt_addr(file, *file_size, &error, &offset_max);
+	cave_entry = find_cave(file, *file_size, 0, &cave_size, &offset_max);
 	printf("bigest cave entry: 0x%jx, cave size: 0x%jx\n", cave_entry, cave_size);
-	virt_addr = get_virt_addr(file, *file_size, &error);
+	
 	if (error)
 		return (NULL);
 	printf("Virtual address offset: 0x%jx\n", virt_addr);

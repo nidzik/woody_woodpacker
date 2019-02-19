@@ -48,7 +48,7 @@
 Elf64_Shdr	*find_sect(char *elf, const char *sect, off_t file_size);
 void		encrypt_section(char *file, Elf64_Shdr *header);
 void		print_section(char *file, Elf64_Shdr *header);
-off_t		find_cave(char *file, off_t file_size, off_t asked_length, off_t *cave_size);
+off_t		find_cave(char *file, off_t file_size, off_t asked_length, off_t *cave_size, off_t *offset_max);
 char		*inject_code(char *file, off_t *file_size, Elf64_Shdr *section);
 int			write_to_file(char *file_name, char *content, off_t content_size);
 
