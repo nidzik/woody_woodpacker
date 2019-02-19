@@ -15,7 +15,7 @@
 # define FILE_NAME "woody"
 # define KEY "super_key"
 
-# define WOODY_DEBUG 0
+# define WOODY_DEBUG 1
 
 # define DEBUG_PAYLOAD "\xcc\xcc\xcc\xcc"
 
@@ -45,7 +45,7 @@
 #  define PAYLOAD DECRYPT_TEXT PRINT_WOODY_PAYLOAD
 # endif
 
-int new_section(char **new_file, off_t *file_size);
+off_t		new_section(char **new_file, off_t *file_size, off_t code_size);
 Elf64_Shdr	*find_sect(char *elf, const char *sect, off_t file_size);
 void		encrypt_section(char *file, Elf64_Shdr *header);
 void		print_section(char *file, Elf64_Shdr *header);
