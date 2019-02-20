@@ -46,9 +46,10 @@
 # endif
 
 
-off_t make_place(char **new_file, off_t *file_size, off_t code_size);
-off_t metamorph_segment(char *file, off_t file_size, off_t wanted_address, off_t wanted_size, off_t virt_addr);
+off_t 		make_place(char **new_file, off_t *file_size, off_t code_size);
+off_t 		metamorph_segment(char *file, off_t file_size, off_t wanted_address, off_t wanted_size, off_t virt_addr);
 off_t		new_section(char **new_file, off_t *file_size, off_t code_size);
+int			is_sect_exec(char *file, off_t file_size, off_t entry_point, int len);
 Elf64_Shdr	*find_sect(char *elf, const char *sect, off_t file_size);
 void		encrypt_section(char *file, Elf64_Shdr *header);
 void		print_section(char *file, Elf64_Shdr *header);

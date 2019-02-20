@@ -70,3 +70,44 @@ Elf64_Shdr *find_sect(char *file, const char *sect, off_t file_size)
 	}
 	return (NULL);
 }
+
+int is_sect_exec(char *file, off_t file_size, off_t entry_point, int len)
+{
+	Elf64_Ehdr *ehdr;
+	Elf64_Phdr *phdr;
+	size_t headers_length;
+	off_t index;
+
+	ehdr = (void *)file;
+	headers_length = ehdr->e_phnum;
+	if (headers_length * sizeof(Elf64_Phdr) + ehdr->e_phoff > file_size)
+	{
+		dprintf(2, "corrupted binary\n");
+		return 0;
+	}
+	phdr = (void *)(file + ehdr->e_phoff);
+
+	index = 0;
+
+	if (!headers_length)
+	{
+		dprintf(2, "There is no program header\n");
+		return (0);
+	}
+	while (index < headers_length)
+	{
+//		printf (" index : %d   p_vaddr %lx   p_memsz %lx   entry_p =  %lx    sum= %lx \n\n", index, phdr[index].p_vaddr, phdr[index].p_memsz , entry_point, phdr[index].p_vaddr+ phdr[index].p_memsz);
+		if (phdr[index].p_vaddr < entry_point && \
+			(phdr[index].p_vaddr + phdr[index].p_memsz+ phdr[index].p_align) > \
+			entry_point ) // check if entry point is in the section
+		{
+			if (phdr[index].p_flags == PF_X || phdr[index].p_flags == PF_W | PF_X || phdr[index].p_flags == PF_X | PF_R)
+				printf ("EXE SECTION") ;
+			return (1);
+		}
+		index += 1;
+
+	}
+	printf("no section exe\n");
+	return 0;
+}
