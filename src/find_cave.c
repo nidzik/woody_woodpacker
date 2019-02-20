@@ -22,7 +22,6 @@ off_t find_cave(char *file, off_t file_size, off_t asked_length, off_t *cave_siz
 	off_t tmp_size;
 	off_t result;
 
-	result = 0;
 	*cave_size = 0;
 	tmp_size = 0;
 	index = 0;
@@ -36,15 +35,10 @@ off_t find_cave(char *file, off_t file_size, off_t asked_length, off_t *cave_siz
 				*cave_size = tmp_size;
 				return (index);
 			}
-			if (tmp_size > *cave_size)
-			{
-				*cave_size = tmp_size;
-				result = index;
-			}
 			index += tmp_size;
 		}
 		else
 			index += 1;
 	}
-	return (result);
+	return (0);
 }

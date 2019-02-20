@@ -1,4 +1,5 @@
 *.o
+payload/decrypt
 obj/
 woody_woodpacker
 *.swp

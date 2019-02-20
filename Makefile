@@ -1,5 +1,5 @@
 NAME := woody_woodpacker
-CC := gcc
+CC := gcc -g
 # CFLAGS := -Werror
 CPATH = src/
 CFILES = \

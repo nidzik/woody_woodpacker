@@ -22,7 +22,7 @@ off_t make_place(char **new_file, off_t *file_size, off_t code_size)
 	return (offset);
 }
 
-off_t metamorph_segement(char *file, off_t file_size, off_t wanted_address, off_t wanted_size, off_t virt_addr)
+off_t metamorph_segment(char *file, off_t file_size, off_t wanted_address, off_t wanted_size, off_t virt_addr)
 {
 	Elf64_Phdr	*h_table;
 	size_t		table_length;
@@ -40,8 +40,8 @@ off_t metamorph_segement(char *file, off_t file_size, off_t wanted_address, off_
 			h_table->p_type = PT_LOAD;
 			h_table->p_offset = wanted_address;
 			h_table->p_vaddr = wanted_address + virt_addr;
-			h_table->p_filesz = wanted_size;
-			h_table->p_memsz = wanted_size;
+			h_table->p_filesz = wanted_size + 5;
+			h_table->p_memsz = wanted_size + 5;
 			h_table->p_flags = PF_X | PF_R;
 			return (1);
 		}
