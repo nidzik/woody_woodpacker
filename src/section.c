@@ -46,37 +46,6 @@ void	print_section(char *file, Elf64_Shdr *header)
 	printf("\n");
 }
 
-
-off_t new_section(char **new_file, off_t *file_size, off_t code_size)
-{
-	Elf64_Shdr	section_header;
-	off_t		h_offset;
-	off_t		s_offset;
-	char		*tmp_file;
-
-	h_offset = ((Elf64_Ehdr *)*new_file)->e_shoff + ((Elf64_Ehdr *)*new_file)->e_shentsize *
-		((Elf64_Ehdr *)*new_file)->e_shnum;
-	s_offset = h_offset + ((Elf64_Ehdr *)*new_file)->e_shentsize;
-	s_offset += s_offset % 4;
-	printf("h_offset: 0x%lx\n", h_offset);
-	bzero(&section_header, sizeof(Elf64_Shdr));
-	section_header.sh_name = 0x1;
-	section_header.sh_type = 0x1;
-	section_header.sh_flags = 0x4;
-	section_header.sh_offset = s_offset;
-	section_header.sh_size = code_size;
-	if (!(tmp_file = realloc(*new_file, s_offset + code_size)))
-	{
-		dprintf(2, "realloc error\n");
-		return (0);
-	}
-	*new_file = tmp_file;
-	memcpy(*new_file + h_offset, &section_header, sizeof(section_header));
-	((Elf64_Ehdr *)*new_file)->e_shnum += 1;
-	*file_size = s_offset + code_size;
-	return (s_offset);
-}
-
 Elf64_Shdr *find_sect(char *file, const char *sect, off_t file_size)
 {
 

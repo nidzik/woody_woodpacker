@@ -6,7 +6,8 @@ CFILES = \
 	main.c \
 	find_cave.c \
 	inject_code.c \
-	section.c
+	section.c \
+	segments.c
 
 OPATH = obj/
 OFILES = $(CFILES:.c=.o)
