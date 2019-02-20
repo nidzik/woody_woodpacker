@@ -16,7 +16,7 @@ static off_t get_cave_size(char *file, off_t offset, off_t file_size)
 	return (index);
 }
 
-off_t find_cave(char *file, off_t file_size, off_t asked_length, off_t *cave_size)
+off_t find_cave(char *file, off_t file_size, off_t asked_length, off_t *cave_size, off_t *offset_max)
 {
 	off_t index;
 	off_t tmp_size;
@@ -28,7 +28,7 @@ off_t find_cave(char *file, off_t file_size, off_t asked_length, off_t *cave_siz
 	index = 0;
 	while (index < file_size)
 	{
-		if (!file[index] && index % 4 == 0)
+		if (!file[index] && index % 4 == 0 && index < *offset_max)
 		{
 			tmp_size = get_cave_size(file, index, file_size);
 			if (asked_length && tmp_size > asked_length)
