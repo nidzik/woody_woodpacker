@@ -112,6 +112,7 @@ char *inject_code(char *file, off_t *file_size, Elf64_Shdr *section)
 	off_t cave_entry;
 	off_t offset_max;
 
+
 	virt_addr = get_virt_addr(file, *file_size, &error, &offset_max);
 	cave_entry = find_cave(file, *file_size, 0, &cave_size, &offset_max);
 	printf("bigest cave entry: 0x%jx, cave size: 0x%jx\n", cave_entry, cave_size);
@@ -120,8 +121,7 @@ char *inject_code(char *file, off_t *file_size, Elf64_Shdr *section)
 		return (NULL);
 	printf("Virtual address offset: 0x%jx\n", virt_addr);
 	cave_entry += virt_addr;
-	printf("Old entry: 0x%jx\nNew entry: 0x%jx\n", ((Elf64_Ehdr *)file)->e_entry, virt_addr);
-	new_file = get_new_file(file, *file_size);
+	printf("Old entry: 0x%jx\nNew entry: 0x%jx\n", ((Elf64_Ehdr *)file)->e_entry, cave_entry);
 
 	// change the entry point
 	((Elf64_Ehdr *)new_file)->e_entry = cave_entry;
