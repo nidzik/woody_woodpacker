@@ -96,14 +96,16 @@ int is_sect_exec(char *file, off_t file_size, off_t entry_point, int len)
 	}
 	while (index < headers_length)
 	{
-//		printf (" index : %d   p_vaddr %lx   p_memsz %lx   entry_p =  %lx    sum= %lx \n\n", index, phdr[index].p_vaddr, phdr[index].p_memsz , entry_point, phdr[index].p_vaddr+ phdr[index].p_memsz);
-		if (phdr[index].p_vaddr < entry_point && \
-			(phdr[index].p_vaddr + phdr[index].p_memsz+ phdr[index].p_align) > \
+//		printf (" index : %d   p_paddr %lx   p_filesz %lx   entry_p =  %lx    sum= %lx \n  flag : %d \n", index, phdr[index].p_paddr, phdr[index].p_filesz , entry_point, phdr[index].p_paddr+ phdr[index].p_filesz, phdr[index].p_flags);
+		if (phdr[index].p_paddr < entry_point && \
+			(phdr[index].p_paddr + phdr[index].p_filesz+ phdr[index].p_align) > \
 			entry_point ) // check if entry point is in the section
 		{
-			if (phdr[index].p_flags == PF_X || phdr[index].p_flags == PF_W | PF_X || phdr[index].p_flags == PF_X | PF_R)
-				printf ("EXE SECTION") ;
-			return (1);
+			if (phdr[index].p_flags == 5)	 // flag for PF_R & PF_X
+				return 1;
+			else
+				return 0;
+
 		}
 		index += 1;
 

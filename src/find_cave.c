@@ -25,14 +25,16 @@ off_t find_cave(char *file, off_t file_size, off_t asked_length, off_t *cave_siz
 	*cave_size = 0;
 	tmp_size = 0;
 	index = 0;
+	printf("starting...  index : %d    fz : %d \n", index, file_size); fflush(stdout);
 	while (index < file_size)
 	{
-		if (!file[index] && index % 4 == 0 && index < *offset_max)
+		if (!file[index] && index % 4 == 0)// && index < *offset_max)
 		{
 			tmp_size = get_cave_size(file, index, file_size);
-			if (asked_length && tmp_size > asked_length)
+			if (asked_length && tmp_size > asked_length && index != 0 && (is_sect_exec(file, file_size, index , 100)))
 			{
 				*cave_size = tmp_size;
+				printf ("return index = % d\n",index );
 				return (index);
 			}
 			index += tmp_size;
@@ -40,5 +42,6 @@ off_t find_cave(char *file, off_t file_size, off_t asked_length, off_t *cave_siz
 		else
 			index += 1;
 	}
+	printf("endiing...\n");
 	return (0);
 }
