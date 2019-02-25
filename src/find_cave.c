@@ -31,10 +31,9 @@ off_t find_cave(char *file, off_t file_size, off_t asked_length, off_t *cave_siz
 		if (!file[index] && index % 4 == 0)// && index < *offset_max)
 		{
 			tmp_size = get_cave_size(file, index, file_size);
-			if (asked_length && tmp_size > asked_length && index != 0 && (is_sect_exec(file, file_size, index , 100)))
+			if (tmp_size > asked_length && index != 0 && (is_sect_exec(file, file_size, index , asked_length)))
 			{
 				*cave_size = tmp_size;
-				printf ("return index = % d\n",index );
 				return (index);
 			}
 			index += tmp_size;
