@@ -27,6 +27,8 @@ https://en.wikipedia.org/wiki/Executable_compression
 
 [Runtime binary encryption](https://grugq.github.io/docs/phrack-58-05.txt)
 
+[AES Intel enctyption(PDF)](https://www.intel.com/content/dam/doc/white-paper/advanced-encryption-standard-new-instructions-set-paper.pdf)
+
 ## Authors
 
 - [**nidzik**](https://github.com/nidzik)
