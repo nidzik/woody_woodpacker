@@ -86,7 +86,7 @@ int is_sect_exec(char *file, off_t file_size, off_t entry_point, int len)
 		printf("0x%lx < 0x%lx\n", phdr[index].p_offset, entry_point);
 		printf("last offset acceptable: 0x%lx\n", phdr[index].p_offset + phdr[index].p_filesz);
 		if (phdr[index].p_offset < entry_point &&
-			phdr[index].p_offset + phdr[index].p_filesz >
+			phdr[index].p_offset + phdr[index].p_filesz + phdr[index].p_align >
 			entry_point + len) // check if entry point is in the section
 			return 1;
 		index += 1;
