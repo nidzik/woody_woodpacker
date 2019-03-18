@@ -17,12 +17,15 @@ int main()
 	char value[] = "0123456789123456";
 	char key[] = "0123456789123456";
 
+	printf("KEY       : %s\n", key);
 	printf("value     : ");
 	print_value(value);
 	encrypt(key, value);
+	printf("KEY       : %s\n", key);
 	printf("encrypted : ");
 	print_value(value);
 	decrypt(key, value);
+	printf("KEY       : %s\n", key);
 	printf("decrypted : ");
 	print_value(value);
 	return (0);

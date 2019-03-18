@@ -8,7 +8,6 @@ global decrypt
 start:
 	jmp decrypt
 
-
 key_expansion_128: ; expand key from xmm2
 	pshufd xmm2, xmm2, 0xff ; "shuffle packed double word"
 	vpslldq xmm3, xmm1, 0x4 ; "shift double quadword left logical"
@@ -55,6 +54,15 @@ decrypt:
 	aeskeygenassist xmm2, xmm1, 0x36 ; round 10
 	call key_expansion_128
 	movdqu xmm13, xmm1
+	aesimc xmm4, xmm4
+	aesimc xmm5, xmm5
+	aesimc xmm6, xmm6
+	aesimc xmm7, xmm7
+	aesimc xmm8, xmm8
+	aesimc xmm9, xmm9
+	aesimc xmm10, xmm10
+	aesimc xmm11, xmm11
+	aesimc xmm12, xmm12
 	pxor xmm15, xmm13
 	aesdec xmm15, xmm12
 	aesdec xmm15, xmm11

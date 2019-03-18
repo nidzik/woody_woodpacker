@@ -5,7 +5,6 @@ global encrypt
 ; encrypt(char *key, char *value)
 ;				rdi,	rsi
 
-
 start:
 	jmp encrypt
 
