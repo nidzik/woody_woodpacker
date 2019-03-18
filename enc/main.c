@@ -1,32 +1,36 @@
 #include <stdio.h>
 
-void encrypt(char *key, char *text);
-void decrypt(char *key, char *text);
+void encrypt(char *key, char *text, size_t size);
+void decrypt(char *key, char *text, size_t size);
 
-void print_value(char *value)
+void print_value(char *value, size_t size)
 {
-	printf("%2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x\n",
-		   (unsigned char)value[0], (unsigned char)value[1], (unsigned char)value[2], (unsigned char)value[3], (unsigned char)value[4],
-		   (unsigned char)value[5], (unsigned char)value[6], (unsigned char)value[7], (unsigned char)value[8], (unsigned char)value[9],
-		   (unsigned char)value[10], (unsigned char)value[11], (unsigned char)value[12], (unsigned char)value[13], (unsigned char)value[14],
-		   (unsigned char)value[15]);
+	size_t index;
+
+	index = 0;
+	while (index < size)
+	{
+		printf("%2x ", (unsigned char)value[index]);
+		index += 1;
+	}
+	printf("\n");
 }
 
 int main()
 {
-	char value[] = "0123456789123456";
-	char key[] = "0123456789123456";
+	char value[] = "0123456789123456012345678912345";
+	char key[] = "0123456789123456012345678912345";
 
 	printf("KEY       : %s\n", key);
 	printf("value     : ");
-	print_value(value);
-	encrypt(key, value);
+	print_value(value, sizeof(value));
+	encrypt(key, value, sizeof(value));
 	printf("KEY       : %s\n", key);
 	printf("encrypted : ");
-	print_value(value);
-	decrypt(key, value);
+	print_value(value, sizeof(value));
+	decrypt(key, value, sizeof(value));
 	printf("KEY       : %s\n", key);
 	printf("decrypted : ");
-	print_value(value);
+	print_value(value, sizeof(value));
 	return (0);
 }

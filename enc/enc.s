@@ -2,8 +2,8 @@ BITS 64
 
 global encrypt
 
-; encrypt(char *key, char *value)
-;				rdi,	rsi
+; encrypt(char *key, char *value, size_t len)
+;				rdi,	rsi			rdx
 
 start:
 	jmp encrypt
@@ -23,7 +23,6 @@ encrypt:
 	push rbx
 	movdqu xmm1, [rdi] ; move key in xmm0
 	movdqu xmm0, xmm1 ; move key in xmm0
-	movdqu xmm15, [rsi] ; move value in xmm15
 	aeskeygenassist xmm2, xmm1, 0x1 ; generate key in xmm2
 	call key_expansion_128
 	movdqu xmm4, xmm1
@@ -54,6 +53,14 @@ encrypt:
 	aeskeygenassist xmm2, xmm1, 0x36 ; round 10
 	call key_expansion_128
 	movdqu xmm13, xmm1
+	; while on the size
+	xor rdi, rdi
+begin_loop:
+	cmp rdx, rdi
+	jle end
+	; ave to do the byte by byte thing :D
+perform:
+	movdqu xmm15, [rsi + rdi] ; move value in xmm15
 	pxor xmm15, xmm0
 	aesenc xmm15, xmm4
 	aesenc xmm15, xmm5
@@ -65,6 +72,9 @@ encrypt:
 	aesenc xmm15, xmm11
 	aesenc xmm15, xmm12
 	aesenclast xmm15, xmm13
-	movdqu [rsi], xmm15
+	movdqu [rsi + rdi], xmm15
+	add rdi, 0x10
+	jmp begin_loop
+end:
 	pop rbx
 	ret
