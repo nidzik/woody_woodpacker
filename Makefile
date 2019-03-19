@@ -1,5 +1,6 @@
 NAME := woody_woodpacker
 CC := gcc -g
+ASM := nasm -f elf64 
 # CFLAGS := -Werror
 CPATH = src/
 CFILES = \
@@ -7,10 +8,11 @@ CFILES = \
 	find_cave.c \
 	inject_code.c \
 	section.c \
-	segments.c
+	segments.c \
+	encrypt.s
 
 OPATH = obj/
-OFILES = $(CFILES:.c=.o)
+OFILES = $(addsuffix .o, $(CFILES))
 OBJ = $(addprefix $(OPATH), $(OFILES))
 HPATH = inc/
 
@@ -29,8 +31,11 @@ $(NAME): $(OPATH) $(OBJ)
 $(OPATH):
 	mkdir -p $(OPATH)
 
-$(OPATH)%.o: $(CPATH)%.c $(HFILES)
+$(OPATH)%.c.o: $(CPATH)%.c $(HFILES)
 	$(CC) $(INC) $(CFLAGS) -c -o $@ $<
+
+$(OPATH)%.s.o: $(CPATH)%.s
+	$(ASM) -o $@ $<
 
 clean:
 	rm -f $(OBJ)

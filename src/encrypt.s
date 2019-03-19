@@ -6,13 +6,13 @@ BITS 64
 	movdqu %2, xmm1
 %endmacro
 
-global decrypt
+global encrypt
 
-; decrypt(char *key, char *value, size_t len)
+; encrypt(char *key, char *value, size_t len)
 ;				rdi,	rsi			rdx
 
 start:
-	jmp decrypt
+	jmp encrypt
 
 key_expansion_128: ; expand key from xmm2
 	pshufd xmm2, xmm2, 0xff ; "shuffle packed double word"
@@ -25,7 +25,7 @@ key_expansion_128: ; expand key from xmm2
 	pxor xmm1, xmm2
 	ret
 
-decrypt:
+encrypt:
 	push rbx
 	movdqu xmm1, [rdi] ; move key in xmm0
 	movdqu xmm0, xmm1 ; move key in xmm0
@@ -39,37 +39,27 @@ decrypt:
 	genkey 0x80, xmm11
 	genkey 0x1b, xmm12
 	genkey 0x36, xmm13
-	aesimc xmm4, xmm4
-	aesimc xmm5, xmm5
-	aesimc xmm6, xmm6
-	aesimc xmm7, xmm7
-	aesimc xmm8, xmm8
-	aesimc xmm9, xmm9
-	aesimc xmm10, xmm10
-	aesimc xmm11, xmm11
-	aesimc xmm12, xmm12
-	; while on the len
+	; while on the size
 	xor rdi, rdi
 begin_loop:
 	cmp rdx, rdi
 	jle end
 perform:
 	movdqu xmm15, [rsi + rdi] ; move value in xmm15
-	pxor xmm15, xmm13
-	aesdec xmm15, xmm12
-	aesdec xmm15, xmm11
-	aesdec xmm15, xmm10
-	aesdec xmm15, xmm9
-	aesdec xmm15, xmm8
-	aesdec xmm15, xmm7
-	aesdec xmm15, xmm6
-	aesdec xmm15, xmm5
-	aesdec xmm15, xmm4
-	aesdeclast xmm15, xmm0
+	pxor xmm15, xmm0
+	aesenc xmm15, xmm4
+	aesenc xmm15, xmm5
+	aesenc xmm15, xmm6
+	aesenc xmm15, xmm7
+	aesenc xmm15, xmm8
+	aesenc xmm15, xmm9
+	aesenc xmm15, xmm10
+	aesenc xmm15, xmm11
+	aesenc xmm15, xmm12
+	aesenclast xmm15, xmm13
 	movdqu [rsi + rdi], xmm15
 	add rdi, 0x10
 	jmp begin_loop
-	
 end:
 	pop rbx
 	ret

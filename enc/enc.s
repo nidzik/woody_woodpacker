@@ -1,5 +1,11 @@
 BITS 64
 
+%macro  genkey 1-2
+	aeskeygenassist xmm2, xmm1, %1 ; round 2
+	call key_expansion_128
+	movdqu %2, xmm1
+%endmacro
+
 global encrypt
 
 ; encrypt(char *key, char *value, size_t len)
@@ -19,46 +25,27 @@ key_expansion_128: ; expand key from xmm2
 	pxor xmm1, xmm2
 	ret
 
+; 0x36353433323139383736353433323130
+
 encrypt:
 	push rbx
 	movdqu xmm1, [rdi] ; move key in xmm0
 	movdqu xmm0, xmm1 ; move key in xmm0
-	aeskeygenassist xmm2, xmm1, 0x1 ; generate key in xmm2
-	call key_expansion_128
-	movdqu xmm4, xmm1
-	aeskeygenassist xmm2, xmm1, 0x2 ; round 2
-	call key_expansion_128
-	movdqu xmm5, xmm1
-	aeskeygenassist xmm2, xmm1, 0x4 ; round 3
-	call key_expansion_128
-	movdqu xmm6, xmm1
-	aeskeygenassist xmm2, xmm1, 0x8 ; round 4
-	call key_expansion_128
-	movdqu xmm7, xmm1
-	aeskeygenassist xmm2, xmm1, 0x10 ; round 5
-	call key_expansion_128
-	movdqu xmm8, xmm1
-	aeskeygenassist xmm2, xmm1, 0x20 ; round 6
-	call key_expansion_128
-	movdqu xmm9, xmm1
-	aeskeygenassist xmm2, xmm1, 0x40 ; round 7
-	call key_expansion_128
-	movdqu xmm10, xmm1
-	aeskeygenassist xmm2, xmm1, 0x80 ; round 8
-	call key_expansion_128
-	movdqu xmm11, xmm1
-	aeskeygenassist xmm2, xmm1, 0x1b ; round 9
-	call key_expansion_128
-	movdqu xmm12, xmm1
-	aeskeygenassist xmm2, xmm1, 0x36 ; round 10
-	call key_expansion_128
-	movdqu xmm13, xmm1
+	genkey 0x1, xmm4
+	genkey 0x2, xmm5
+	genkey 0x4, xmm6
+	genkey 0x8, xmm7
+	genkey 0x10, xmm8
+	genkey 0x20, xmm9
+	genkey 0x40, xmm10
+	genkey 0x80, xmm11
+	genkey 0x1b, xmm12
+	genkey 0x36, xmm13
 	; while on the size
 	xor rdi, rdi
 begin_loop:
 	cmp rdx, rdi
 	jle end
-	; ave to do the byte by byte thing :D
 perform:
 	movdqu xmm15, [rsi + rdi] ; move value in xmm15
 	pxor xmm15, xmm0
