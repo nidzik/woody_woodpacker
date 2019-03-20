@@ -94,8 +94,8 @@ int build_payload(char *file, char *new_file, char *code, off_t code_len, Elf64_
 	memcpy(code + NEW_EP_OFFSET, &offset, sizeof(int));
 	memcpy(code + TEXT_LENGTH_OFFSET, &(section->sh_size), sizeof(int));
 	memcpy(code + TEXT_OFFSET_OFFSET, &(offset_virt), sizeof(int));
-	memcpy(code + KEY1_OFFSET_OFFSET, KEY, sizeof(int));
-	memcpy(code + KEY2_OFFSET_OFFSET, KEY + 6, sizeof(int));
+	memcpy(code + KEY1_OFFSET_OFFSET, KEY, sizeof(uint64_t));
+	memcpy(code + KEY2_OFFSET_OFFSET, KEY + 8, sizeof(uint64_t));
 	offset -= (WOODY_DEBUG ? 4 : 0);
 	memcpy(new_file + offset - virt_addr, code, code_len);
 	offset += code_len;
