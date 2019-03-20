@@ -75,7 +75,7 @@ static Elf64_Addr get_virt_addr(char *file, off_t file_size, int *error, off_t *
 	return (0);
 }
 
-int build_payload(char *file, char *new_file, char *code, off_t code_len, Elf64_Shdr *section, off_t virt_addr)
+int build_payload(char *file, char *new_file, char *code, off_t code_len, Elf64_Shdr *section, off_t virt_addr, char *key)
 {
 	char *jump;
 	off_t offset;
@@ -94,17 +94,16 @@ int build_payload(char *file, char *new_file, char *code, off_t code_len, Elf64_
 	memcpy(code + NEW_EP_OFFSET, &offset, sizeof(int));
 	memcpy(code + TEXT_LENGTH_OFFSET, &(section->sh_size), sizeof(int));
 	memcpy(code + TEXT_OFFSET_OFFSET, &(offset_virt), sizeof(int));
-	memcpy(code + KEY1_OFFSET_OFFSET, KEY, sizeof(uint64_t));
-	memcpy(code + KEY2_OFFSET_OFFSET, KEY + 8, sizeof(uint64_t));
+	memcpy(code + KEY1_OFFSET_OFFSET, key, sizeof(uint64_t));
+	memcpy(code + KEY2_OFFSET_OFFSET, key + 8, sizeof(uint64_t));
 	offset -= (WOODY_DEBUG ? 4 : 0);
 	memcpy(new_file + offset - virt_addr, code, code_len);
 	offset += code_len;
-	// write(2, code, code_len);
 	memcpy(new_file + offset - virt_addr, jmp_code, sizeof(jmp_code) - 1);
 	return 1;
 }
 
-char *inject_code(char *file, off_t *file_size, Elf64_Shdr *section)
+char *inject_code(char *file, off_t *file_size, Elf64_Shdr *section, char *key)
 {
 	off_t virt_addr;
 	int error;
@@ -134,7 +133,7 @@ char *inject_code(char *file, off_t *file_size, Elf64_Shdr *section)
 	// build_payload(file, new_file, shellcode, sizeof(shellcode));
 
 	// without shellcode (just a jump to the begining)
-	build_payload(file, new_file, code, sizeof(code) - 1, section, virt_addr);
+	build_payload(file, new_file, code, sizeof(code) - 1, section, virt_addr, key);
 
 	// fill the 1st cave code with 2  sigtrap
 	return (new_file);

@@ -11,9 +11,9 @@
 # include <stdlib.h>
 # include <sys/mman.h>
 # include <string.h>
+# include <time.h>
 
 # define FILE_NAME "woody"
-# define KEY "1234567890123456"
 
 # define WOODY_DEBUG 0
 
@@ -47,11 +47,12 @@ off_t 		metamorph_segment(char *file, off_t file_size, off_t wanted_address, off
 off_t		new_section(char **new_file, off_t *file_size, off_t code_size);
 int			is_sect_exec(char *file, off_t file_size, off_t entry_point, int len);
 Elf64_Shdr	*find_sect(char *elf, const char *sect, off_t file_size);
-void		encrypt_section(char *file, Elf64_Shdr *header);
+void		encrypt_section(char *file, Elf64_Shdr *header, char *key);
 void		print_section(char *file, Elf64_Shdr *header);
 off_t		find_cave(char *file, off_t file_size, off_t asked_length, off_t *cave_size, off_t *offset_max);
-char		*inject_code(char *file, off_t *file_size, Elf64_Shdr *section);
+char		*inject_code(char *file, off_t *file_size, Elf64_Shdr *section, char *key);
 int			write_to_file(char *file_name, char *content, off_t content_size);
+void		generate_key(char *key);
 // ASM
 void encrypt(char *key, char *value, size_t len);
 

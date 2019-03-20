@@ -73,7 +73,9 @@ int main(int ac, char **av)
 	Elf32_Shdr *shdr;
 	Elf64_Shdr *text;
 	int arch;
+	char	key[16];
 
+    srand(time(NULL));
 	if (ac < 2)
 	{
 		dprintf(2, "Usage: %s [FILENAME]\n", av[0]);
@@ -84,7 +86,6 @@ int main(int ac, char **av)
 	if (!file || !(arch = verif_header(file, file_size)))
 		return (1);
 	printf("Sucess retreiving %s, file size: %zu bytes.\n", av[1], file_size);
-
 	// Step 1 : generate our code with the good address
 	// char *code = get_our_code(file, file_size)
 
@@ -95,15 +96,15 @@ int main(int ac, char **av)
 	// memcpy(bin + entry, our_code, code_length)
 
 	text = find_sect(file, ".text", file_size);
-	new_file = inject_code(file, &file_size, text);
+	generate_key(key);
+	new_file = inject_code(file, &file_size, text, key);
 	if (!text || text->sh_offset + text->sh_size > file_size)
 	{
 		dprintf(2, text ? "No text section\n" : "Invalid file\n");
 		return (1);
 	}
 	//print_section(new_file, text);
-	encrypt_section(new_file, text);
-	printf("encrypted section: (key: \"%s\")\n", KEY);
+	encrypt_section(new_file, text, key);
 	//print_section(new_file, text);
 
 	printf("exiting...\n");

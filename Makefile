@@ -9,7 +9,8 @@ CFILES = \
 	inject_code.c \
 	section.c \
 	segments.c \
-	encrypt.s
+	encrypt.s \
+	key.c
 
 OPATH = obj/
 OFILES = $(addsuffix .o, $(CFILES))
