@@ -1,24 +1,15 @@
 #include "woody.h"
 
-void	encrypt_section(char *file, Elf64_Shdr *header)
+
+
+void	encrypt_section(char *file, Elf64_Shdr *header, char *key)
 {
-	size_t	key_len;
-	char key[] = KEY;
 	off_t offset;
 	off_t size;
-	off_t index;
 
 	offset = header->sh_offset;
 	size = header->sh_size;
-	key_len = strlen(key);
-	index = 0;	
-	while (index < size)
-	{
-		file[offset + index] = file[offset + index] ^ 0x42;
-		//file[offset + index] = file[offset + index] ^ key[index % key_len];
-		//file[offset + index] = file[offset + index] ^ key[(index + offset) % key_len];
-		index += 1;
-	}
+	encrypt(key, file + offset, size);
 	return ;
 }
 
