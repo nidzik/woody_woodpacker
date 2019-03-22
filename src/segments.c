@@ -6,12 +6,11 @@ off_t make_place(char **new_file, off_t *file_size, off_t code_size)
 	off_t		offset;
 	char		*tmp_file;
 
-	code_size += 5; // jmp
+	code_size += 5;
 	offset = ((Elf64_Ehdr *)*new_file)->e_shoff + ((Elf64_Ehdr *)*new_file)->e_shentsize *
 		((Elf64_Ehdr *)*new_file)->e_shnum;
 	offset += offset % 4;
-	printf("h_offset: 0x%lx\n", offset);
-	printf("code size: %lx\n", code_size);
+	printf(" * elarging the file adding 0x%lx\n", offset + code_size - *file_size);
 	if (!(tmp_file = realloc(*new_file, offset + code_size)))
 	{
 		dprintf(2, "realloc error\n");
@@ -62,35 +61,28 @@ int is_sect_exec(char *file, off_t file_size, off_t entry_point, int len)
 	headers_length = ehdr->e_phnum;
 	if (headers_length * sizeof(Elf64_Phdr) + ehdr->e_phoff > file_size)
 	{
-		dprintf(2, "corrupted binary\n");
+		dprintf(2, "[KO] Corrupted binary\n");
 		return 0;
 	}
 	phdr = (void *)(file + ehdr->e_phoff);
 	index = 0;
 	if (!headers_length)
 	{
-		dprintf(2, "There is no program header\n");
+		dprintf(2, "[KO] There is no program header\n");
 		return (0);
 	}
-	printf("len : %lx\n", len);
 	while (index < headers_length)
 	{
-//		printf (" index : %d   p_paddr %lx   p_filesz %lx   entry_p =  %lx    sum= %lx \n  flag : %d \n", index, phdr[index].p_paddr, phdr[index].p_filesz , entry_point, phdr[index].p_paddr+ phdr[index].p_filesz, phdr[index].p_flags);
-		//printf("addr: 0x%lx, e flag: %d, r flag: %d, mask: %lx\n", phdr[index].p_vaddr, phdr[index].p_flags & 1, phdr[index].p_flags & 4, phdr[index].p_flags);
 		if (!(phdr[index].p_flags & 1) || !(phdr[index].p_flags & 4))	 // flag for PF_R & PF_X
 		{
-		//	printf("invalid mask\n");
 			index += 1;
 			continue ;
 		}
-		printf("0x%lx < 0x%lx\n", phdr[index].p_offset, entry_point);
-		printf("last offset acceptable: 0x%lx\n", phdr[index].p_offset + phdr[index].p_filesz);
 		if (phdr[index].p_offset < entry_point &&
 			phdr[index].p_offset + phdr[index].p_filesz + phdr[index].p_align >
-			entry_point + len) // check if entry point is in the section
+			entry_point + len)
 			return 1;
 		index += 1;
 	}
-	printf("no section exe\n");
 	return 0;
 }

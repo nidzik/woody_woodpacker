@@ -39,8 +39,6 @@ encrypt:
 	genkey 0x80, xmm11
 	genkey 0x1b, xmm12
 	genkey 0x36, xmm13
-	; while on the size
-	; int3;
 	xor rdi, rdi
 begin_loop:
 	cmp rdx, rdi

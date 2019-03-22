@@ -1,7 +1,5 @@
 #include "woody.h"
 
-
-
 void	encrypt_section(char *file, Elf64_Shdr *header, char *key)
 {
 	off_t offset;
@@ -10,31 +8,6 @@ void	encrypt_section(char *file, Elf64_Shdr *header, char *key)
 	offset = header->sh_offset;
 	size = header->sh_size;
 	encrypt(key, file + offset, size);
-	return ;
-}
-
-
-void	print_section(char *file, Elf64_Shdr *header)
-{
-	off_t offset;
-	off_t size;
-	off_t index;
-
-	offset = header->sh_offset;
-	size = header->sh_size;
-	index = 0;
-	while (index < size)
-	{
-		printf(" %02x%02x%02x%02x ", *((unsigned char *)file + offset + index),
-				*((unsigned char *)file + offset + index + 1),
-				*((unsigned char *)file + offset + index + 2),
-				*((unsigned char *)file + offset + index + 3));
-		if ( index == 12 || (index && !((index + 4) % 16)))
-			printf("\n");
-		fflush(stdout);
-		index += 4;
-	}
-	printf("\n");
 }
 
 Elf64_Shdr *find_sect(char *file, const char *sect, off_t file_size)
@@ -54,7 +27,7 @@ Elf64_Shdr *find_sect(char *file, const char *sect, off_t file_size)
 		stable = shdr[shnum];
 		if (!strcmp(sname + stable.sh_name, sect))
 		{
-			printf("\nname sect : %s \t| offset : 0x%lx \t| size: 0x%lx \n", sname + stable.sh_name, stable.sh_offset, stable.sh_size);
+			printf(" * .text section finded, offset: 0x%lx, size: 0x%lx\n", stable.sh_offset, stable.sh_size);
 			return ((Elf64_Shdr*)((char*)shdr + sizeof(Elf64_Shdr) * shnum));
 		}
 		shnum += 1;

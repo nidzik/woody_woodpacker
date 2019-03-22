@@ -37,7 +37,7 @@ int write_to_file(char *file_name, char *content, off_t content_size)
 	return (1);
 }
 
-static Elf64_Addr get_virt_addr(char *file, off_t file_size, int *error, off_t *offset_max)
+Elf64_Addr get_virt_addr(char *file, off_t file_size, int *error, off_t *offset_max)
 {
 	Elf64_Ehdr *ehdr;
 	Elf64_Phdr *phdr;
@@ -52,8 +52,6 @@ static Elf64_Addr get_virt_addr(char *file, off_t file_size, int *error, off_t *
 		return 0;
 	}
 	phdr = (void *)(file + ehdr->e_phoff);
-	//	printf("file pt : %p, phdr pt : %p\n", file, phdr);
-	//	printf("headers length: %ld\n", headers_length);
 	index = 0;
 	*error = 1;
 	if (!headers_length)
@@ -80,17 +78,15 @@ int build_payload(char *file, char *new_file, char *code, off_t code_len, Elf64_
 	char *jump;
 	off_t offset;
 	int jmp_adr;
-	char jmp_code[] = "\xe9\xff\xff\xff\xff";
+	int	offset_virt;
+	char jmp_code[] = "\xe9\xde\xad\xbe\xef";
 
 	offset = ((Elf64_Ehdr *)new_file)->e_entry;
 	jmp_adr = ((Elf64_Ehdr *)file)->e_entry - (offset + code_len);
-	jmp_adr -= 5; // wtf
-	printf("offset: 0x%lx\n", offset);
-	printf("offset of the jump: %d\n", jmp_adr);
-	printf("size of the code: 0x%lx\n", code_len);
+	jmp_adr -= 5;
 	memcpy(jmp_code + 1, &jmp_adr, sizeof(int));
 	offset += (WOODY_DEBUG ? 4 : 0);
-	int offset_virt = section->sh_offset + virt_addr ; 
+	offset_virt = section->sh_offset + virt_addr ; 
 	memcpy(code + NEW_EP_OFFSET, &offset, sizeof(int));
 	memcpy(code + TEXT_LENGTH_OFFSET, &(section->sh_size), sizeof(int));
 	memcpy(code + TEXT_OFFSET_OFFSET, &(offset_virt), sizeof(int));
@@ -110,7 +106,7 @@ char *inject_code(char *file, off_t *file_size, Elf64_Shdr *section, char *key)
 	char *new_file;
 	char code[] = PAYLOAD;
 	off_t cave_size;
-	off_t cave_entry=0;
+	off_t cave_entry;
 	off_t offset_max;
 
 
@@ -121,20 +117,13 @@ char *inject_code(char *file, off_t *file_size, Elf64_Shdr *section, char *key)
 	cave_entry = find_cave(file, *file_size, sizeof(code) + 5 , &cave_size, &offset_max);
 	if (!cave_entry)
 	{
-		printf("creating more place...\n");
 		cave_entry = make_place(&new_file, file_size, sizeof(code) - 1);
 		metamorph_segment(new_file, *file_size, cave_entry, sizeof(code) - 1, virt_addr);
 	}
+	else
+		printf(" * code cave finded, offset: %lx\n", cave_entry);	
 	cave_entry += virt_addr;
-	// change the entry point
 	((Elf64_Ehdr *)new_file)->e_entry = cave_entry;
-	// copy the code to the cave and jump to the normal entry point
-	// Example with shellcode
-	// build_payload(file, new_file, shellcode, sizeof(shellcode));
-
-	// without shellcode (just a jump to the begining)
 	build_payload(file, new_file, code, sizeof(code) - 1, section, virt_addr, key);
-
-	// fill the 1st cave code with 2  sigtrap
 	return (new_file);
 }

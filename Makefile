@@ -10,7 +10,8 @@ CFILES = \
 	section.c \
 	segments.c \
 	encrypt.s \
-	key.c
+	key.c \
+	utils.c
 
 OPATH = obj/
 OFILES = $(addsuffix .o, $(CFILES))

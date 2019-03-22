@@ -29,15 +29,12 @@ main:
 	mov r8, 0xdeadbeefdeadbeef ; HARD CODED second part of th ekey
 	movq xmm1, r9
 	movq xmm2, r8
-	; movq xmm1, r9 ;
 	movlhps xmm1, xmm2 ; 0x00000000ffffffff to 0xffffffff00000000
-	; movq xmm1, r8 ;
 	; get virt address
 	lea rdi, [ rel start ]
 	neg r13
 	add rdi, r13 ; begining of the elf
 	add rdi, r11 ; begining of the .text WORKING
-	;mov r8, rdi
 	; align rdi for mprotect
 	mov r10, rdi;
 	and rdi, -0x1000;
@@ -54,7 +51,6 @@ main:
 
 	; initialize for the loop
 	add rdi, r10 ; come bactk to the start of .text
-	;mov r14, rdi ; buffer start
 	neg r10
 	add r12, r10 ; come back to the original r12, code length
 

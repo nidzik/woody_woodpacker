@@ -85,29 +85,21 @@ int main(int ac, char **av)
 	file = get_file(av[1], &file_size);
 	if (!file || !(arch = verif_header(file, file_size)))
 		return (1);
-	printf("Sucess retreiving %s, file size: %zu bytes.\n", av[1], file_size);
-	// Step 1 : generate our code with the good address
-	// char *code = get_our_code(file, file_size)
-
-	// Step 2 : find where to place our code
-	// off_t entry = find_place(char *bin, off_t code_size);
-
-	// Step 3 : copy our code (if we found a place, else we )
-	// memcpy(bin + entry, our_code, code_length)
-
+	// verification if not already infected
+	if (is_infected(file, file_size))
+		return (1);
+	printf(" * File type [OK]\n");
 	text = find_sect(file, ".text", file_size);
 	generate_key(key);
 	new_file = inject_code(file, &file_size, text, key);
 	if (!text || text->sh_offset + text->sh_size > file_size)
 	{
-		dprintf(2, text ? "No text section\n" : "Invalid file\n");
+		dprintf(2, text ? "[KO] No text section\n" : "[KO] Invalid file\n");
 		return (1);
 	}
-	//print_section(new_file, text);
+	printf(" * Code injection [OK]\n");
 	encrypt_section(new_file, text, key);
-	//print_section(new_file, text);
-
-	printf("exiting...\n");
-
+	printf(" * .text section encrypted [OK]\n");
+	printf("Finish !\n");
 	return write_to_file(FILE_NAME, new_file, file_size);
 }

