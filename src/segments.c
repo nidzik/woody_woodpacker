@@ -72,7 +72,7 @@ int is_sect_exec(char *file, off_t file_size, off_t entry_point, int len)
 		dprintf(2, "There is no program header\n");
 		return (0);
 	}
-	printf("len : %lx\n", len);
+	printf("len : %x\n", len);
 	while (index < headers_length)
 	{
 //		printf (" index : %d   p_paddr %lx   p_filesz %lx   entry_p =  %lx    sum= %lx \n  flag : %d \n", index, phdr[index].p_paddr, phdr[index].p_filesz , entry_point, phdr[index].p_paddr+ phdr[index].p_filesz, phdr[index].p_flags);

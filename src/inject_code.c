@@ -1,6 +1,6 @@
 #include "woody.h"
 
-static char *get_new_file(char *old_file, off_t file_size)
+char *get_new_file(char *old_file, off_t file_size)
 {
 	char *result;
 

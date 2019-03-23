@@ -7,7 +7,9 @@ CFILES = \
 	main.c \
 	find_cave.c \
 	inject_code.c \
+	inject_code_pe.c \
 	section.c \
+	section_pe.c \
 	segments.c \
 	encrypt.s \
 	key.c

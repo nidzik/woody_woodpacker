@@ -1,6 +1,22 @@
 #include "woody.h"
 
 
+void	encrypt_section_pe(char *file, p_pack *pp)
+{
+	off_t offset;
+	off_t size;
+	off_t index;
+
+	offset = pp->offset_section_text;
+	size = pp->size_section_text;
+	index = 0;
+	while (index < size)
+	{
+		file[offset + index] = file[offset + index] ^ 0x42;
+		index += 1;
+	}
+	return ;
+}
 
 void	encrypt_section(char *file, Elf64_Shdr *header, char *key)
 {

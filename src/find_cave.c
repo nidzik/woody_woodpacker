@@ -16,6 +16,35 @@ static off_t get_cave_size(char *file, off_t offset, off_t file_size)
 	return (index);
 }
 
+off_t find_cave_pe(char *file, off_t file_size, off_t asked_length, off_t *cave_size, off_t *offset_max)
+{
+	off_t index;
+	off_t tmp_size;
+	off_t result;
+
+	*cave_size = 0;
+	tmp_size = 0;
+	index = 0;
+	printf("starting...  index : %ld    fz : %ld \n", index, file_size); fflush(stdout);
+	while (index < file_size)
+	{
+		if (!file[index] && index % 4 == 0 && index > *offset_max)
+		{
+			tmp_size = get_cave_size(file, index, file_size);
+			if (tmp_size > asked_length && index != 0)
+			{
+				*cave_size = tmp_size;
+				return (index);
+			}
+			index += tmp_size;
+		}
+		else
+			index += 1;
+	}
+	printf("endiing...\n");
+	return (0);
+}
+
 off_t find_cave(char *file, off_t file_size, off_t asked_length, off_t *cave_size, off_t *offset_max)
 {
 	off_t index;
@@ -25,7 +54,7 @@ off_t find_cave(char *file, off_t file_size, off_t asked_length, off_t *cave_siz
 	*cave_size = 0;
 	tmp_size = 0;
 	index = 0;
-	printf("starting...  index : %d    fz : %d \n", index, file_size); fflush(stdout);
+	printf("starting...  index : %ld    fz : %ld \n", index, file_size); fflush(stdout);
 	while (index < file_size)
 	{
 		if (!file[index] && index % 4 == 0)// && index < *offset_max)
