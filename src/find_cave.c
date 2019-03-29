@@ -24,7 +24,6 @@ off_t find_cave_pe(char *file, off_t file_size, off_t asked_length, off_t *cave_
 	*cave_size = 0;
 	tmp_size = 0;
 	index = 0;
-	printf("starting...  index : %ld    fz : %ld \n", index, file_size); fflush(stdout);
 	while (index < file_size)
 	{
 		if (!file[index] && index % 4 == 0 && index > *offset_max)
@@ -40,7 +39,6 @@ off_t find_cave_pe(char *file, off_t file_size, off_t asked_length, off_t *cave_
 		else
 			index += 1;
 	}
-	printf("endiing...\n");
 	return (0);
 }
 
