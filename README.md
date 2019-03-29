@@ -9,9 +9,9 @@ https://en.wikipedia.org/wiki/Executable_compression
 - [x] Modify the stack at runtime,
 - [x] Do the encryption/decryption functions (in asm)
 - [x] Inject them
-- [ ] Working on all the executable
-- [ ] Better encryption (AES)
-- [ ] Bonus...
+- [x] Working on all the executable
+- [x] Better encryption (AES)
+- [x] Bonus... (PE)
 
 ## Doc
 
