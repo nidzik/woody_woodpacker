@@ -89,7 +89,8 @@ int main(int ac, char **av)
 	if (is_infected(file, file_size))
 		return (1);
 	printf(" * File type [OK]\n");
-	text = find_sect(file, ".text", file_size);
+	if (!(text = find_sect(file, ".text", file_size)))
+		return (1);
 	generate_key(key);
 	new_file = inject_code(file, &file_size, text, key);
 	if (!text || text->sh_offset + text->sh_size > file_size)
