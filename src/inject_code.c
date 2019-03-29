@@ -24,9 +24,8 @@ int write_to_file(char *file_name, char *content, off_t content_size)
 		dprintf(2, "Cannot create the new binary \"%s\":(\n", file_name);
 		return (0);
 	}
-
 	writed = write(fd, content, content_size);
-	if (writed != content_size)
+	if (writed != (size_t)content_size)
 	{
 		dprintf(2, "incomplete write to the new binary\n");
 		close(fd);
@@ -46,7 +45,7 @@ Elf64_Addr get_virt_addr(char *file, off_t file_size, int *error, off_t *offset_
 
 	ehdr = (void *)file;
 	headers_length = ehdr->e_phnum;
-	if (headers_length * sizeof(Elf64_Phdr) + ehdr->e_phoff > file_size)
+	if ((off_t)(headers_length * sizeof(Elf64_Phdr) + ehdr->e_phoff) > file_size)
 	{
 		dprintf(2, "corrupted binary\n");
 		return 0;
@@ -59,7 +58,7 @@ Elf64_Addr get_virt_addr(char *file, off_t file_size, int *error, off_t *offset_
 		dprintf(2, "There is no program header\n");
 		return (0);
 	}
-	while (index < headers_length)
+	while ((size_t)index < headers_length)
 	{
 		if (phdr[index].p_type == 1) // check the p_type for 1 which is PT_LOAD
 		{
@@ -75,7 +74,6 @@ Elf64_Addr get_virt_addr(char *file, off_t file_size, int *error, off_t *offset_
 
 int build_payload(char *file, char *new_file, char *code, off_t code_len, Elf64_Shdr *section, off_t virt_addr, char *key)
 {
-	char *jump;
 	off_t offset;
 	int jmp_adr;
 	int	offset_virt;
@@ -114,11 +112,11 @@ char *inject_code(char *file, off_t *file_size, Elf64_Shdr *section, char *key)
 	if (error)
 		return (NULL);
 	new_file = get_new_file(file, *file_size);
-	cave_entry = find_cave(file, *file_size, sizeof(code) + 5 , &cave_size, &offset_max);
+	cave_entry = find_cave(file, *file_size, sizeof(code) + 5 , &cave_size);
 	if (!cave_entry)
 	{
 		cave_entry = make_place(&new_file, file_size, sizeof(code) - 1);
-		metamorph_segment(new_file, *file_size, cave_entry, sizeof(code) - 1, virt_addr);
+		metamorph_segment(new_file, cave_entry, sizeof(code) - 1, virt_addr);
 	}
 	else
 		printf(" * code cave finded, offset: %lx\n", cave_entry);	

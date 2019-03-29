@@ -84,15 +84,16 @@ typedef struct 		s_pack
 #  define TEXT_OFFSET_OFFSET_PE 14
 #  define PAYLOAD_PE ADDR_PAYLOAD  DECRYPT_TEXT_PE
 
-
+int			verif_header(char *file, off_t size);
+char		*get_file(char *name, off_t *file_size);
 off_t 		make_place(char **new_file, off_t *file_size, off_t code_size);
-off_t 		metamorph_segment(char *file, off_t file_size, off_t wanted_address, off_t wanted_size, off_t virt_addr);
+off_t 		metamorph_segment(char *file, off_t wanted_address, off_t wanted_size, off_t virt_addr);
 off_t		new_section(char **new_file, off_t *file_size, off_t code_size);
 int			is_sect_exec(char *file, off_t file_size, off_t entry_point, int len);
 Elf64_Shdr	*find_sect(char *elf, const char *sect, off_t file_size);
 void		encrypt_section(char *file, Elf64_Shdr *header, char *key);
 void		print_section(char *file, Elf64_Shdr *header);
-off_t		find_cave(char *file, off_t file_size, off_t asked_length, off_t *cave_size, off_t *offset_max);
+off_t		find_cave(char *file, off_t file_size, off_t asked_length, off_t *cave_size);
 char		*inject_code(char *file, off_t *file_size, Elf64_Shdr *section, char *key);
 int			write_to_file(char *file_name, char *content, off_t content_size);
 void		generate_key(char *key);
@@ -102,9 +103,10 @@ char 		*get_new_file(char *old_file, off_t file_size);
 // ASM
 void encrypt(char *key, char *value, size_t len);
  // PE
-Elf64_Shdr  *find_sect_pe(char *file, const char *sect, off_t file_size, p_pack *pp);
+p_pack		*init_struct(void);
+int 	 	find_sect_pe(char *file, const char *sect, p_pack *pp);
 int 		find_section_of_cave(char *file, off_t cave_entry, p_pack *pp);
 void		encrypt_section_pe(char *file, p_pack *pp);
-char		*inject_code_pe(char *file, off_t *file_size, Elf64_Shdr *section, p_pack *pp);
+char		*inject_code_pe(char *file, off_t *file_size, p_pack *pp);
 off_t		find_cave_pe(char *file, off_t file_size, off_t asked_length, off_t *cave_size, off_t *offset_max);
 #endif

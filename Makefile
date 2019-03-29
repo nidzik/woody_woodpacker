@@ -1,7 +1,7 @@
 NAME := woody_woodpacker
 CC := gcc -g
 ASM := nasm -f elf64 
-# CFLAGS := -Werror
+CFLAGS := -Werror -Wextra -Wall
 CPATH = src/
 CFILES = \
 	main.c \
@@ -13,7 +13,8 @@ CFILES = \
 	segments.c \
 	encrypt.s \
 	key.c \
-	utils.c
+	utils.c \
+	verif_header.c
 
 OPATH = obj/
 OFILES = $(addsuffix .o, $(CFILES))

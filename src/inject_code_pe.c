@@ -1,10 +1,9 @@
 #include "woody.h"
 
-int build_payload_pe(char *file, char *new_file, char *code, off_t code_len, Elf64_Shdr *section, off_t virt_addr, off_t cave_entry, p_pack *pp)
+int build_payload_pe(char *new_file, char *code, off_t code_len, off_t virt_addr, off_t cave_entry, p_pack *pp)
 {
 	off_t offset;
 	QWORD va_cave_entry, va_text;	
-	char addr_payload[] = ADDR_PAYLOAD;
 
 	offset = cave_entry;
 	va_cave_entry = pp->rva + pp->virtual_address;
@@ -15,12 +14,7 @@ int build_payload_pe(char *file, char *new_file, char *code, off_t code_len, Elf
 	va_cave_entry += 8;
 	memcpy(new_file + pp->offset_permissions_text, &(pp->value_permissions_text),4);
 	memcpy(new_file + pp->offset_permissions, &(pp->value_permissions),4);
-
-	offset = offset +  (sizeof(addr_payload) - 1);
-
 	memcpy(code, &(va_cave_entry), 8);
-
-	offset -= sizeof(addr_payload) - 1;
 	memcpy(code + TEXT_LENGTH_OFFSET_PE + 8, &(pp->size_section_text), sizeof(int));
 	memcpy(code + TEXT_OFFSET_OFFSET_PE + 8, &(va_text), sizeof(int));
 
@@ -30,10 +24,9 @@ int build_payload_pe(char *file, char *new_file, char *code, off_t code_len, Elf
 }
 
 
-char *inject_code_pe(char *file, off_t *file_size, Elf64_Shdr *section, p_pack *pp)
+char *inject_code_pe(char *file, off_t *file_size, p_pack *pp)
 {
 	off_t virt_addr;
-	int error;
 	char *new_file;
 	char code[] = PAYLOAD_PE;
 	off_t cave_size;
@@ -52,7 +45,7 @@ char *inject_code_pe(char *file, off_t *file_size, Elf64_Shdr *section, p_pack *
 
 	cave_entry += virt_addr;
 
-	build_payload_pe(file, new_file, code, sizeof(code) - 1, section, virt_addr, cave_entry, pp);
+	build_payload_pe(new_file, code, sizeof(code) - 1, virt_addr, cave_entry, pp);
 
 	return (new_file);
 }

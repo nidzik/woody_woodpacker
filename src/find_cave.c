@@ -20,7 +20,6 @@ off_t find_cave_pe(char *file, off_t file_size, off_t asked_length, off_t *cave_
 {
 	off_t index;
 	off_t tmp_size;
-	off_t result;
 
 	*cave_size = 0;
 	tmp_size = 0;
@@ -45,13 +44,11 @@ off_t find_cave_pe(char *file, off_t file_size, off_t asked_length, off_t *cave_
 	return (0);
 }
 
-off_t find_cave(char *file, off_t file_size, off_t asked_length, off_t *cave_size, off_t *offset_max)
+off_t find_cave(char *file, off_t file_size, off_t asked_length, off_t *cave_size)
 {
 	off_t index;
 	off_t tmp_size;
-	off_t result;
 
-	*cave_size = 0;
 	tmp_size = 0;
 	index = 0;
 	while (index < file_size)

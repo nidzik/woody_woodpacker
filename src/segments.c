@@ -21,7 +21,7 @@ off_t make_place(char **new_file, off_t *file_size, off_t code_size)
 	return (offset);
 }
 
-off_t metamorph_segment(char *file, off_t file_size, off_t wanted_address, off_t wanted_size, off_t virt_addr)
+off_t metamorph_segment(char *file, off_t wanted_address, off_t wanted_size, off_t virt_addr)
 {
 	Elf64_Phdr	*h_table;
 	size_t		table_length;
@@ -59,7 +59,7 @@ int is_sect_exec(char *file, off_t file_size, off_t entry_point, int len)
 
 	ehdr = (void *)file;
 	headers_length = ehdr->e_phnum;
-	if (headers_length * sizeof(Elf64_Phdr) + ehdr->e_phoff > file_size)
+	if ((off_t)(headers_length * sizeof(Elf64_Phdr) + ehdr->e_phoff) > file_size)
 	{
 		dprintf(2, "[KO] Corrupted binary\n");
 		return 0;
@@ -71,16 +71,16 @@ int is_sect_exec(char *file, off_t file_size, off_t entry_point, int len)
 		dprintf(2, "[KO] There is no program header\n");
 		return (0);
 	}
-	while (index < headers_length)
+	while ((size_t)index < headers_length)
 	{
 		if (!(phdr[index].p_flags & 1) || !(phdr[index].p_flags & 4))	 // flag for PF_R & PF_X
 		{
 			index += 1;
 			continue ;
 		}
-		if (phdr[index].p_offset < entry_point &&
+		if (phdr[index].p_offset < (size_t)entry_point &&
 			phdr[index].p_offset + phdr[index].p_filesz + phdr[index].p_align >
-			entry_point + len)
+			(size_t)entry_point + len)
 			return 1;
 		index += 1;
 	}

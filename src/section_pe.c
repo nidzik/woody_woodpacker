@@ -19,10 +19,10 @@ void    print_pe_section(char *file, DWORD offset, DWORD size)
 	printf("\n");
 }
 
-off_t get_tls_callback(char *file, const char *sect, off_t file_size, p_pack *pp)
+off_t get_tls_callback(char *file, p_pack *pp)
 {
 	WORD numSections, optHeaderSize;
-	unsigned const char *opt_header, *secTable, *tlsDir, *dataDir;
+	char *opt_header, *secTable, *dataDir;
 	unsigned int  i;
 	char *sec; 
 	char secName[9] = { };
@@ -42,7 +42,7 @@ off_t get_tls_callback(char *file, const char *sect, off_t file_size, p_pack *pp
 
 	while (i < numSections)
 	{
-		sec = (unsigned char *)(secTable + 40 * i);
+		sec = (char *)(secTable + 40 * i);
 		memcpy(secName, sec, 8);
 		secName[8] = 0;
 		offSect = READ_DWORD(sec + 20);
@@ -56,18 +56,15 @@ off_t get_tls_callback(char *file, const char *sect, off_t file_size, p_pack *pp
 		}
 			i++;
 	}
-
-
-	tlsDir = file +READ_DWORD (sec + 20) + 0x1c ;  
 	offCallBack = ra_off_tls + 24;
 	pp->offset_tls_callback = offCallBack;
 	return 0;
 }
 
-int get_info_text(char *file, const char *sect, off_t file_size, p_pack *pp)
+int get_info_text(char *file, const char *sect, p_pack *pp)
 {
 	WORD numSections, optHeaderSize;
-	unsigned const char *opt_header, *secTable;
+	char *opt_header, *secTable;
 	unsigned int sizeSectText, i;
 	char *sec; 
 	char secName[9] = { };
@@ -86,7 +83,7 @@ int get_info_text(char *file, const char *sect, off_t file_size, p_pack *pp)
 
 	while (i < numSections)
 	{
-		sec = (unsigned char *)(secTable + 40 * i);
+		sec = (char *)(secTable + 40 * i);
 		memcpy(secName, sec, 8);
 		secName[8] = 0;
 
@@ -109,8 +106,8 @@ int get_info_text(char *file, const char *sect, off_t file_size, p_pack *pp)
 int find_section_of_cave(char *file, off_t cave_entry, p_pack *pp)
 {
 	WORD numSections, optHeaderSize;
-	unsigned const char *opt_header, *secTable;
-	unsigned int sizeSectText, i;
+	char *opt_header, *secTable;
+	unsigned int i;
 	char *sec; 
 	off_t offSect, sizeSect, va;
 	
@@ -125,7 +122,7 @@ int find_section_of_cave(char *file, off_t cave_entry, p_pack *pp)
 
 	while (i < numSections)
 	{
-		sec = (unsigned char *)(secTable + 40 * i);
+		sec = (char *)(secTable + 40 * i);
 		offSect = READ_DWORD(sec + 20);
 		sizeSect = READ_DWORD(sec + 16);
 		va = READ_DWORD(sec + 12);
@@ -140,25 +137,13 @@ int find_section_of_cave(char *file, off_t cave_entry, p_pack *pp)
 	return 0;
 }
 
-Elf64_Shdr *find_sect_pe(char *file, const char *sect, off_t file_size, p_pack *pp)
+int find_sect_pe(char *file, const char *sect, p_pack *pp)
 {
-	Elf64_Shdr *header;
-	p_pack ppp;
-	unsigned const char *pe, *coff, *opt_header, *dataDir, *secTable;
-	WORD numSections, optHeaderSize;
-	DWORD vaRes;
-	int i = 0;
-	char *sec;
-	char secName[9];
-	char secName1[9];
-	off_t entry_point;
-	int offset_tls_callback;
-
-	if (get_tls_callback(file, ".tls\0", file_size, pp ) == -1) 
-		return NULL;
+	if (get_tls_callback(file, pp ) == -1) 
+		return (0);
 	
-	if (get_info_text(file, ".text", file_size, pp) == -1) 
-		return NULL;
+	if (get_info_text(file, sect, pp) == -1) 
+		return (0);
 	printf ("\033[32;1moffset section text : %x  size : %x\noffset tls callback : %x value : %016x \n\033[0m", pp->offset_section_text, pp->size_section_text, pp->offset_tls_callback, READ_QWORD(file + pp->offset_tls_callback));
-	return header;
+	return (1);
 }

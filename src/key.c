@@ -13,8 +13,8 @@ void generate_key(char *key)
     fourth = rand();
     memcpy(key, &first, sizeof(int));
     memcpy(key + 4, &second, sizeof(int));
-    memcpy(key + 8, &second, sizeof(int));
-    memcpy(key + 12, &second, sizeof(int));
+    memcpy(key + 8, &third, sizeof(int));
+    memcpy(key + 12, &fourth, sizeof(int));
     printf(" * Key: 0x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
         (unsigned char)key[0],
         (unsigned char)key[1],
