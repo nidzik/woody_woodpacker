@@ -30,6 +30,9 @@ typedef struct 		s_pack
 	unsigned int 	value_permissions;
 	unsigned int 	rva;
 	unsigned int 	va_text;
+	unsigned int	tls_protect;
+	unsigned int	offset_entry_point;
+	unsigned int	value_entry_point;
 	QWORD 			virtual_address;
 
 } p_pack;
@@ -104,7 +107,7 @@ char 		*get_new_file(char *old_file, off_t file_size);
 void encrypt(char *key, char *value, size_t len);
  // PE
 p_pack		*init_struct(void);
-int 	 	find_sect_pe(char *file, const char *sect, p_pack *pp);
+int 	 	find_sect_pe(char *file, const char *sect, p_pack *pp, off_t file_size);
 int 		find_section_of_cave(char *file, off_t cave_entry, p_pack *pp);
 void		encrypt_section_pe(char *file, p_pack *pp);
 char		*inject_code_pe(char *file, off_t *file_size, p_pack *pp);

@@ -73,7 +73,6 @@ int get_info_text(char *file, const char *sect, p_pack *pp)
 	numSections = READ_WORD(file + READ_DWORD(file + 0x3c) + 4  +2);
 	optHeaderSize = READ_WORD(file + READ_DWORD(file + 0x3c) + 4  +16);
 	opt_header = file + READ_DWORD(file + 0x3c) + 4 + 20;
-
 	pp->virtual_address = READ_QWORD(opt_header + 24);
 
 	if (numSections == 0 || optHeaderSize == 0)
@@ -93,7 +92,8 @@ int get_info_text(char *file, const char *sect, p_pack *pp)
 
 	sizeSectText = READ_DWORD(sec + 16);
 	offSectText = READ_DWORD(sec + 20);
-
+	pp->offset_entry_point =  READ_DWORD(file + 0x3C) + 4 + 20 + optHeaderSize + 16;
+	pp->value_entry_point = READ_DWORD(opt_header + 16);
 	pp->offset_permissions_text = READ_DWORD(file + 0x3C) + 4 + 20 + optHeaderSize + 40 * i  + 36;
 	pp->value_permissions_text = READ_DWORD(sec+ 36) | 0x80000000 | 0x20000000;
 	pp->offset_section_text = offSectText;
@@ -135,12 +135,31 @@ int find_section_of_cave(char *file, off_t cave_entry, p_pack *pp)
 	return 0;
 }
 
-int find_sect_pe(char *file, const char *sect, p_pack *pp)
+
+int is_tls(char *file, off_t size_of_file)
 {
-	if (get_tls_callback(file, pp ) == -1)
+  char *str_tls = "tls";
+  int nb_of_tls = 0;
+  int i = 0;
+  while (i < size_of_file)
+    {
+		if (strncmp(file, str_tls, 3))
+			nb_of_tls++;
+		i++;
+		file++;
+    }
+  return nb_of_tls;
+}
+
+int find_sect_pe(char *file, const char *sect, p_pack *pp, off_t file_size)
+{
+  	if (get_tls_callback(file, pp ) == -1)
 		return (0);
 	if (get_info_text(file, sect, pp) == -1)
 		return (0);
+	if (is_tls(file, file_size) > 10)
+		pp->tls_protect = 1;
+	
 	printf(" * .text section finded, offset: 0x%x, size: 0x%x\n", pp->offset_section_text, pp->size_section_text);
 	return (1);
 }

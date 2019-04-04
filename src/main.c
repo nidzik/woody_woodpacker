@@ -26,7 +26,7 @@ int main(int ac, char **av)
 		if (!(pp = init_struct()))
 			return (1);
 		pp->arch = arch;
-		if (!find_sect_pe(file, ".text", pp))
+		if (!find_sect_pe(file, ".text", pp, file_size))
 			return (1);
 		new_file = inject_code_pe(file, &file_size, pp);
 		printf(" * Code injection [OK]\n");

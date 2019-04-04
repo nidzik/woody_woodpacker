@@ -4,19 +4,37 @@ int build_payload_pe(char *new_file, char *code, off_t code_len, off_t virt_addr
 {
 	off_t offset;
 	QWORD va_cave_entry, va_text;
+	int jmp_addr;
+	char jmp_code[] = "\xe9\x00\x00\x00\x00";
 
 	offset = cave_entry;
 	va_cave_entry = pp->rva + pp->virtual_address;
 	va_text = pp->va_text + pp->virtual_address;
 
-	memcpy(new_file + pp->offset_tls_callback, &(va_cave_entry), sizeof(QWORD));
+	if (pp->tls_protect)
+	{
+		memcpy(new_file + pp->offset_tls_callback, &(va_cave_entry), sizeof(QWORD));
 
-	va_cave_entry += 8;
+		va_cave_entry += 8;
+		memcpy(code, &(va_cave_entry), 8);
+		memcpy(code + TEXT_LENGTH_OFFSET_PE + 8, &(pp->size_section_text), sizeof(int));
+		memcpy(code + TEXT_OFFSET_OFFSET_PE + 8, &(va_text), sizeof(int));
+	}
+	else if (!pp->tls_protect)
+		{
+			offset -= virt_addr; 
+			jmp_addr = pp->value_entry_point - (offset + code_len - 8);
+			jmp_addr -= 5;
+			memcpy(jmp_code + 1, &jmp_addr, sizeof(int));
+			printf("** offset : 0x%lx, jmp : 0x%x, old entry : 0x%x\n",offset, (unsigned char)jmp_addr, pp->value_entry_point);
+			memcpy(code + TEXT_LENGTH_OFFSET_PE, &(pp->size_section_text), sizeof(int));
+			memcpy(code + TEXT_OFFSET_OFFSET_PE, &(va_text), sizeof(int));
+			offset += code_len;
+			memcpy(new_file + offset, jmp_code, sizeof(jmp_code) - 1);
+			offset += virt_addr;
+		}
 	memcpy(new_file + pp->offset_permissions_text, &(pp->value_permissions_text),4);
 	memcpy(new_file + pp->offset_permissions, &(pp->value_permissions),4);
-	memcpy(code, &(va_cave_entry), 8);
-	memcpy(code + TEXT_LENGTH_OFFSET_PE + 8, &(pp->size_section_text), sizeof(int));
-	memcpy(code + TEXT_OFFSET_OFFSET_PE + 8, &(va_text), sizeof(int));
 
 	memcpy(new_file + offset - virt_addr, code, code_len);
 

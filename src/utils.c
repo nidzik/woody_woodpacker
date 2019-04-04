@@ -74,5 +74,7 @@ p_pack *init_struct(void)
 	pp->rva = 0;
 	pp->va_text = 0;
 	pp->virtual_address = 0;
+	pp->tls_protect = 0;
+	pp->offset_entry_point = 0;
 	return pp;
 }
